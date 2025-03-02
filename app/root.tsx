@@ -1,13 +1,17 @@
 import {
+  data,
   Links,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
 } from "@remix-run/react";
-import type { LinksFunction } from "@remix-run/node";
+import type { LinksFunction, LoaderFunction } from "@remix-run/node";
+import { createHash } from "crypto";
 
 import "./tailwind.css";
+import { commitSession, getOrCreateSession, getSession } from "./sessions";
 
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -22,6 +26,22 @@ export const links: LinksFunction = () => [
   },
 ];
 
+export const loader: LoaderFunction = async ({ request }) => {
+  const { session, userId } = await getOrCreateSession(request);
+  const hashedId = createHash("sha256").update(userId).digest("hex");
+
+  return data(
+    { userId: hashedId },
+    { headers: {
+      "Set-Cookie": await commitSession(session)
+    }}
+  )
+}
+
+export type RootLoaderData = {
+  userId: string;
+};
+
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
@@ -32,7 +52,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        {children}
+        <div className="">
+          {children}
+        </div>
         <ScrollRestoration />
         <Scripts />
       </body>
