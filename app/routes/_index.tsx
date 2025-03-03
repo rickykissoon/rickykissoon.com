@@ -1,6 +1,6 @@
 import type { MetaFunction } from "@remix-run/node";
-import { Link, useLoaderData, useMatches } from "@remix-run/react";
-import { useEffect, useState } from "react";
+import { Link, useMatches } from "@remix-run/react";
+import { useState } from "react";
 import { AnimatedRandomart } from "~/components/AnimatedRandomart";
 import { DecodingText } from "~/components/DecodingText";
 import { Post } from "~/components/Post";
@@ -30,7 +30,7 @@ export default function Index() {
 				</div>
 				<div className="text-sm mt-[-6px]">Software Developer</div>
 
-				<div className="mt-10 max-w-[700px]">
+				<div className="mt-7 max-w-[700px]">
 					<Post
 						icon={
 							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
@@ -67,25 +67,27 @@ export default function Index() {
 					<div key={animationKey} className="flex flex-col border-[#272120] border-[1px] mt-1 w-full">
 						<div className="flex w-full">{userId && (
 							<div className="flex flex-col my-3 gap-2 justify-center w-full">
-								<div className="flex gap-2 mx-auto text-sm">
-									r1-key: <div className="bg-[#272120]">{<DecodingText text={userId} speed={150} placeholderChar="-" />}</div>
+								<div className="flex flex-wrap gap-2 mx-auto text-sm">
+									<div className="text-nowrap">r1-key:</div>
+									<div className="bg-[#272120] break-all">{<DecodingText text={userId} speed={150} placeholderChar="-" />}</div>
 								</div>
 								<div className="flex mx-auto w-full justify-center">
 									<AnimatedRandomart uuid={userId} speed={150} />
 								</div>
-								<div className="flex gap-2 mx-auto text-[10px] max-w-[400px]">
-									This is your personal randomaly generated identifier, used to identify you as you navigate the site. You don't need to do anything.
+								<div className="flex gap-2 mx-auto text-[11px] max-w-[400px]">
+									This is your personal randomly generated identifier, used to recognize you as you navigate the site. No action is required on your part.
 								</div>
-								<div className="gap-2 mx-auto text-[10px] max-w-[400px]">
-									The randomart image was generated using a method inspired by the 
-									<Link to="https://undeadly.org/cgi?action=article&sid=20080615022750" className="ml-2 bg-purple-950">Drunken Bishop algorithm</Link>, similiar to the randomart producted when you create an SSH key. Instead of an SSH key fingerprint, this version uses a UUID that has been hashed as input.
+								<div className="gap-2 mx-auto text-[11px] max-w-[400px]">
+									The randomart image was generated using a method inspired by the
+									<Link to="https://undeadly.org/cgi?action=article&sid=20080615022750" className="ml-2 bg-purple-950">Drunken Bishop algorithm</Link>
+									, similar to the randomart produced when you create an SSH key using ssh-keygen. Instead of an SSH key fingerprint, this version uses a UUID as input.
 								</div>
 							</div>	
 							)}
 						</div>
 						<div className="flex pt-0 p-3 gap-3 text-[#272120] justify-end">
 							<svg onClick={() => setAnimationKey((prev) => prev + 1)} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 cursor-pointer">
-  							<path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
+							<path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
 							</svg>
 						</div>
 					</div>
@@ -99,9 +101,7 @@ export default function Index() {
 						title={"NOTE"}
 						body={
 							<div className="text-xs">
-								This is a personal website, your data will not be sold, 
-								but I will be collecting some details in order to do some fun things. 
-								Don't freak out, its not like I'm 
+								This is a personal website. Your data will not be sold, but I will collect some details to enable fun features. Don’t worry—it’s not like I’m
 								<Link to="https://en.wikipedia.org/wiki/Facebook%E2%80%93Cambridge_Analytica_data_scandal">
 									<span className="ml-2 bg-purple-950">Facebook</span>
 								</Link>, 
