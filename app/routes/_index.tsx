@@ -19,14 +19,13 @@ export default function Index() {
 	const data = rootMatch?.data as RootLoaderData | undefined;
 	const userId = data?.userId;
 
-	const [animationKey, setAnimationKey] = useState(0);
 	
 	return (
 		<div className="flex w-full">
 			<div className="m-3 lg:mx-10 w-full">
 				<div className="flex text-[40px] font-thin">
-					<div className="text-[#ff4f30]"><DecodingText text="R1CKY" speed={100} placeholderChar="-" /></div>
-					<div className="text-[#272120]"><DecodingText text="K15500N" speed={100} placeholderChar="-" /></div>
+					<div className="text-[#ff4f30]"><DecodingText text="RICKY" speed={100} placeholderChar="-" /></div>
+					<div className="text-[#272120]"><DecodingText text="KISSOON" speed={100} placeholderChar="-" /></div>
 				</div>
 				<div className="text-sm mt-[-6px]">Software Developer</div>
 
@@ -64,33 +63,7 @@ export default function Index() {
 						}
 					/>
 
-					<div key={animationKey} className="flex flex-col border-[#272120] border-[1px] mt-1 w-full">
-						<div className="flex w-full">{userId && (
-							<div className="flex flex-col my-3 gap-2 justify-center w-full">
-								<div className="flex flex-wrap gap-2 mx-auto text-sm">
-									<div className="text-nowrap">r1-key:</div>
-									<div className="bg-[#272120] break-all">{<DecodingText text={userId} speed={150} placeholderChar="-" />}</div>
-								</div>
-								<div className="flex mx-auto w-full justify-center">
-									<AnimatedRandomart uuid={userId} speed={150} />
-								</div>
-								<div className="flex gap-2 mx-auto text-[11px] max-w-[400px]">
-									This is your personal randomly generated identifier, used to recognize you as you navigate the site. No action is required on your part.
-								</div>
-								<div className="gap-2 mx-auto text-[11px] max-w-[400px]">
-									The randomart image was generated using a method inspired by the
-									<Link to="https://undeadly.org/cgi?action=article&sid=20080615022750" className="ml-2 bg-purple-950">Drunken Bishop algorithm</Link>
-									, similar to the randomart produced when you create an SSH key using ssh-keygen. Instead of an SSH key fingerprint, this version uses a UUID as input.
-								</div>
-							</div>	
-							)}
-						</div>
-						<div className="flex pt-0 p-3 gap-3 text-[#272120] justify-end">
-							<svg onClick={() => setAnimationKey((prev) => prev + 1)} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 cursor-pointer">
-							<path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
-							</svg>
-						</div>
-					</div>
+					<R1Key userId={userId} />
 
 					<Post
 						icon={
@@ -117,6 +90,56 @@ export default function Index() {
 						}
 					/>
 				</div>
+			</div>
+		</div>
+	);
+}
+
+function R1Key({userId}: {userId: string | undefined}) {
+	const [animationKey, setAnimationKey] = useState(0);
+	const [openExplanation, setOpenExplanation] = useState(false);
+
+	return(
+		<div key={animationKey} className="flex flex-col border-[#272120] border-[1px] mt-1 w-full">
+			<div className="flex w-full">{userId && (
+				<div className="flex flex-col my-3 gap-2 justify-center w-full">
+					<div className="flex flex-wrap gap-2 mx-auto text-sm">
+						<div className="text-nowrap">r1-key:</div>
+						<div className="bg-[#272120] break-all">{<DecodingText text={userId} speed={150} placeholderChar="-" />}</div>
+					</div>
+					<div className="flex mx-auto w-full justify-center">
+						<AnimatedRandomart uuid={userId} speed={150} />
+					</div>
+
+					<div className="flex pt-0 p-3 pb-0 gap-3 text-[#272120] justify-between">
+						{openExplanation ? (
+							<svg onClick={() => setOpenExplanation((prev) => !prev)} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 cursor-pointer">
+  							<path strokeLinecap="round" strokeLinejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+							</svg>
+						) : (
+							<svg onClick={() => setOpenExplanation((prev) => !prev)} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 cursor-pointer">
+								<path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+							</svg>
+						)}
+
+						<svg onClick={() => setAnimationKey((prev) => prev + 1)} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 cursor-pointer">
+						<path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
+						</svg>
+					</div>
+					{openExplanation && (
+						<>
+							<div className="flex gap-2 mx-auto text-[11px] max-w-[400px]">
+								This is your personal randomly generated identifier, used to recognize you as you navigate the site. No action is required on your part.
+							</div>
+							<div className="gap-2 mx-auto text-[11px] max-w-[400px]">
+								The randomart image was generated using a method inspired by the
+								<Link to="https://undeadly.org/cgi?action=article&sid=20080615022750" className="ml-2 bg-purple-950">Drunken Bishop algorithm</Link>
+								, similar to the randomart produced when you create an SSH key using ssh-keygen. Instead of an SSH key fingerprint, this version uses a UUID as input.
+							</div>
+						</>
+					)}
+				</div>	
+				)}
 			</div>
 		</div>
 	);
