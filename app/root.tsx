@@ -12,6 +12,7 @@ import { createHash } from "crypto";
 
 import "./tailwind.css";
 import { commitSession, getOrCreateSession, getSession } from "./sessions";
+import { useTracking } from "./hooks/useTracking";
 
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -69,5 +70,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  useTracking();
+
   return <Outlet />;
 }
