@@ -26,7 +26,10 @@ export const loader: LoaderFunction = async ({ request }) => {
         }))
     );
 
-    return updatedEvents;
+    return {
+        userId: await hashUserId(userId),  
+        userEvents: updatedEvents
+    };
 }
 
 async function hashUserId(userId: string): Promise<string> {
@@ -41,14 +44,19 @@ interface EventDocument {
     timestamp: Date;
 }
 
-export interface UserEvent {
+interface UserEvent {
     _id: string;
     hashedId: string;
     firstEvent: EventDocument;
 }
 
+interface RandomartGalleryProps {
+    userId: string;
+    userEvents: UserEvent[];
+}
+
 export default function RandomartGallery() {
-    const userEvents: UserEvent[] = useLoaderData();
+    const {userEvents} = useLoaderData<RandomartGalleryProps>();
     const [animationKey, setAnimationKey] = useState(0);
 
     return(
@@ -86,10 +94,11 @@ export default function RandomartGallery() {
 }
 
 function OneRandomArt({userEvent}: {userEvent: UserEvent}) {
+    const {userId} = useLoaderData<RandomartGalleryProps>();
     const [animationKey, setAnimationKey] = useState(0);
 
     return(
-        <div key={animationKey} onClick={() => setAnimationKey((prev) => prev + 1)} className="cursor-pointer border border-[#272120] p-2 pb-0">
+        <div key={animationKey} onClick={() => setAnimationKey((prev) => prev + 1)} className="cursor-pointer border border-[#272120] p-2 pb-0" style={{ borderColor: userId === userEvent.hashedId ? '#3b0764' : '#272120'}}>
             <AnimatedRandomart uuid={userEvent.hashedId} speed={150} />
             <div className="flex text-[#272120] justify-between border-t border-[#272120] mt-2 py-1">
                 {userEvent.firstEvent.timestamp.toISOString()}
