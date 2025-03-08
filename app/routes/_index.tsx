@@ -67,7 +67,7 @@ export default function Index() {
 
 					<Post
 						icon={
-							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
 								<path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
 							</svg>
 						}
@@ -100,7 +100,7 @@ function R1Key({userId}: {userId: string | undefined}) {
 	const [openExplanation, setOpenExplanation] = useState(false);
 
 	return(
-		<div key={animationKey} className="flex flex-col border-[#272120] border-[1px] mt-1 w-full">
+		<div key={animationKey} className="flex flex-col border-[#272120] border-[1px] mt-1 w-full rounded-br-md">
 			<div className="flex w-full">{userId && (
 				<div className="flex flex-col my-3 gap-2 justify-center w-full">
 					<div className="flex flex-wrap gap-2 mx-auto text-sm">
