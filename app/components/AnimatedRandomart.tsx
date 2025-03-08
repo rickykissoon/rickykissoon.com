@@ -82,7 +82,7 @@ export function AnimatedRandomart({ uuid, speed = 100 }: RandomartProps) {
 
     return (
         <div className="flex flex-col items-center font-mono">
-            <div className="border border-[#272120] p-2 inline-block">
+            <div className=" inline-block">
                 {grid.map((row, rowIndex) => (
                     <div key={rowIndex} className="flex">
                         {row.map((cell, colIndex) => (

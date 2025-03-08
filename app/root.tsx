@@ -6,16 +6,14 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-  useLoaderData,
   useRouteError,
 } from "@remix-run/react";
 import type { LinksFunction, LoaderFunction } from "@remix-run/node";
 import { createHash } from "crypto";
 
 import "./tailwind.css";
-import { commitSession, getOrCreateSession, getSession } from "./sessions";
+import { commitSession, getOrCreateSession } from "./sessions";
 import { useTracking } from "./hooks/useTracking";
-import { useState } from "react";
 import Menu from "./components/Menu";
 import { Post } from "./components/Post";
 

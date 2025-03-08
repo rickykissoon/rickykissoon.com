@@ -107,8 +107,10 @@ function R1Key({userId}: {userId: string | undefined}) {
 						<div className="text-nowrap">r1-key:</div>
 						<div className="bg-[#272120] break-all">{<DecodingText text={userId} speed={150} placeholderChar="-" />}</div>
 					</div>
-					<div className="flex mx-auto w-full justify-center">
-						<AnimatedRandomart uuid={userId} speed={150} />
+					<div className="flex mx-auto w-full justify-center ">
+						<div className="border border-[#272120] p-2">
+							<AnimatedRandomart uuid={userId} speed={150} />
+						</div>
 					</div>
 
 					<div className="flex pt-0 p-3 pb-0 gap-3 text-[#272120] justify-between">
@@ -123,7 +125,7 @@ function R1Key({userId}: {userId: string | undefined}) {
 						)}
 
 						<svg onClick={() => setAnimationKey((prev) => prev + 1)} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 cursor-pointer">
-						<path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
+							<path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
 						</svg>
 					</div>
 					{openExplanation && (
