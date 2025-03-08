@@ -1,12 +1,60 @@
+import { LoaderFunction } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
+import { createHash } from "crypto";
+import { ObjectId } from "mongodb";
+import { useEffect, useState } from "react";
+import { AnimatedRandomart } from "~/components/AnimatedRandomart";
 import { Post } from "~/components/Post";
+import { getOrCreateSession } from "~/sessions";
+import { getDb } from "~/utils/db.server";
 
+export const loader: LoaderFunction = async ({ request }) => {
+    const { session, userId } = await getOrCreateSession(request);
+
+    const db = await getDb();
+    const collection = db.collection("tracking_events");
+    const uniqueUserIds = await collection.aggregate([
+        { $sort: { timestamp: 1 }},
+        { $group: { _id: "$userId", firstEvent: { $first: "$$ROOT" }}},
+        { $sort: { "firstEvent.timestamp": -1 }}
+    ]).toArray();
+
+    const updatedEvents = await Promise.all(
+        uniqueUserIds.map(async (event) => ({
+            ...event,
+            hashedId: event.firstEvent.userId ? await hashUserId(event.firstEvent.userId) : null,
+        }))
+    );
+
+    return updatedEvents;
+}
+
+async function hashUserId(userId: string): Promise<string> {
+    return createHash("sha256").update(userId).digest("hex");
+}
+
+interface EventDocument {
+    _id: ObjectId;
+    userId: string;
+    eventType: string;
+    eventData: Record<string, any>;
+    timestamp: Date;
+}
+
+export interface UserEvent {
+    _id: string;
+    hashedId: string;
+    firstEvent: EventDocument;
+}
 
 export default function RandomartGallery() {
+    const userEvents: UserEvent[] = useLoaderData();
+    const [animationKey, setAnimationKey] = useState(0);
 
     return(
         <div className="flex w-full">
             <div className="m-3 lg:mx-10 w-full">
-                <div className="mt-7 max-w-[700px]">
+                <div className="mt-7 w-full">
                     <Post
                         icon={
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
@@ -14,9 +62,40 @@ export default function RandomartGallery() {
                             </svg>
                         } 
                         title={<div>Randomart Gallery</div>} 
-                        body={<div>Under Construction...</div>} 
+                        body={
+                            <div>
+                                <div>Each one represents a unique visitor of this site.</div>
+                                <div className="flex text-[#272120] justify-end leading-[1.8]">Replay All
+						            <svg onClick={() => setAnimationKey((prev) => prev + 1)} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 cursor-pointer">
+						                <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
+						            </svg>
+                                </div>
+                            </div>        
+                        } 
                     />
+
+                    <div key={animationKey} className="flex flex-wrap justify-center gap-1 mt-1">
+                        {userEvents?.map((userEvent: UserEvent) => (
+                            <OneRandomArt key={userEvent._id} userEvent={userEvent} />
+                        ))}
+                    </div>
                 </div>
+            </div>
+        </div>
+    );
+}
+
+function OneRandomArt({userEvent}: {userEvent: UserEvent}) {
+    const [animationKey, setAnimationKey] = useState(0);
+
+    return(
+        <div key={animationKey} onClick={() => setAnimationKey((prev) => prev + 1)} className="cursor-pointer border border-[#272120] p-2 pb-0">
+            <AnimatedRandomart uuid={userEvent.hashedId} speed={150} />
+            <div className="flex text-[#272120] justify-between border-t border-[#272120] mt-2 py-1">
+                {userEvent.firstEvent.timestamp.toISOString()}
+			    <svg onClick={() => setAnimationKey((prev) => prev + 1)} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 cursor-pointer">
+			        <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
+			    </svg>
             </div>
         </div>
     );
