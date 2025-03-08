@@ -4,7 +4,7 @@
 
 html,
 body {
-  @apply bg-white text-[#cecece] dark:bg-[#080100] font-mono;
+  @apply text-[#cecece] bg-[#080100] font-mono;
 
   @media (prefers-color-scheme: dark) {
     color-scheme: dark;

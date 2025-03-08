@@ -100,7 +100,7 @@ function R1Key({userId}: {userId: string | undefined}) {
 	const [openExplanation, setOpenExplanation] = useState(false);
 
 	return(
-		<div key={animationKey} className="flex flex-col border-[#272120] border-[1px] mt-1 w-full">
+		<div key={animationKey} className="flex flex-col border-[#272120] border-[1px] mt-1 w-full rounded-br-md">
 			<div className="flex w-full">{userId && (
 				<div className="flex flex-col my-3 gap-2 justify-center w-full">
 					<div className="flex flex-wrap gap-2 mx-auto text-sm">

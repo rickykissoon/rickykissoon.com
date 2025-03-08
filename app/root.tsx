@@ -13,6 +13,7 @@ import { createHash } from "crypto";
 import "./tailwind.css";
 import { commitSession, getOrCreateSession, getSession } from "./sessions";
 import { useTracking } from "./hooks/useTracking";
+import { useState } from "react";
 
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -61,6 +62,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <body>
         <div className="">
           {children}
+          <Menu />
         </div>
         <ScrollRestoration />
         <Scripts />
@@ -73,4 +75,17 @@ export default function App() {
   useTracking();
 
   return <Outlet />;
+}
+
+export function Menu() {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <>
+      <button 
+        onClick={() => setIsOpen(!isOpen)}
+        className="fixed bottom-6 right-6 z-50 flex h-12 w-12 text-xl items-center justify-center transition bg-[#290701] border-[#480d02] border-[1px] text-[#ff4f30] rounded-br-md"
+      >{isOpen ? "x" : "☰"}</button>
+    </>
+  );
 }
