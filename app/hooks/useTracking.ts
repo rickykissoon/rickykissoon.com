@@ -15,7 +15,7 @@ export async function trackEvent(eventType: string, data: EventData = {}): Promi
         }),
     })
     .then(res => res.json())
-    .then(data => console.log('API response:', data))
+    // .then(data => console.log('API response:', data))
     .catch(err => console.error("Error:", err));
 }
 
@@ -23,7 +23,6 @@ export function useTracking() {
     const location = useLocation();
 
     useEffect(() => {
-        console.log('useTracking useeffect');
         trackEvent("page_view", { url: location.pathname });
 
         const handleClick = (event: MouseEvent) => {
