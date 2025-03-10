@@ -73,7 +73,7 @@ export default function RandomartGallery() {
                         body={
                             <div>
                                 <div>Each one represents a unique visitor of this site.</div>
-                                <div className="flex text-[#272120] justify-end leading-[1.8]">Replay All
+                                <div className="flex text-[#6e5e5d] justify-end leading-[1.8]">Replay All
 						            <svg onClick={() => setAnimationKey((prev) => prev + 1)} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 cursor-pointer">
 						                <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
 						            </svg>
@@ -98,9 +98,9 @@ function OneRandomArt({userEvent}: {userEvent: UserEvent}) {
     const [animationKey, setAnimationKey] = useState(0);
 
     return(
-        <div key={animationKey} onClick={() => setAnimationKey((prev) => prev + 1)} className="cursor-pointer border border-[#272120] p-2 pb-0" style={{ borderColor: userId === userEvent.hashedId ? '#3b0764' : '#272120'}}>
+        <div key={animationKey} onClick={() => setAnimationKey((prev) => prev + 1)} className="cursor-pointer border border-[#6e5e5d] p-2 pb-0" style={{ borderColor: userId === userEvent.hashedId ? '#3b0764' : '#6e5e5d'}}>
             <AnimatedRandomart uuid={userEvent.hashedId} speed={150} />
-            <div className="flex text-[#272120] justify-between border-t border-[#272120] mt-2 py-1">
+            <div className="flex text-[#6e5e5d] justify-between border-t border-[#6e5e5d] mt-2 py-1">
                 {userEvent.firstEvent.timestamp.toISOString()}
 			    <svg onClick={() => setAnimationKey((prev) => prev + 1)} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 cursor-pointer">
 			        <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />

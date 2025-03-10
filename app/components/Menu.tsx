@@ -30,11 +30,11 @@ export default function Menu() {
                 initial={{ x: "100%" }}
                 animate={{ x: isOpen ? "0%" : "100%" }}
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                className="fixed bottom-0 right-0 z-40 h-full w-full md:w-[400px] p-4 bg-[#080100]/75 md:border-[#272120] md:border-[1px] border-b-0 border-r-0"
+                className="fixed bottom-0 right-0 z-40 h-full w-full md:w-[400px] p-4 bg-[#080100]/75 md:border-[#6e5e5d] md:border-[1px] border-b-0 border-r-0"
             >
                 <div className="flex text-[30px] font-thin">
                     <div className="text-[#ff4f30]">RICKY</div>
-                    <div className="text-[#272120]">KISSOON</div>
+                    <div className="text-[#6e5e5d]">KISSOON</div>
                 </div>
                 <ul className="space-y-2 text-white">
                     <li>
@@ -44,7 +44,7 @@ export default function Menu() {
                         <MenuListItem to="/secondpage" label="second page" />
                     </li>
                     <li>
-                        <MenuListItem to="/blog" label="blog" />
+                        <MenuListItem to="/blogs" label="blogs" />
                     </li>
                     <li>
                         <MenuListItem to="/randomart-gallery" label="randomart gallery" />
