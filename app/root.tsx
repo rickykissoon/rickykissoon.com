@@ -147,7 +147,7 @@ export function ErrorBoundary() {
                 } 
                 body={
                   <div>
-                    <div className="text-[#272120]">You seem to be lost...</div>
+                    <div className="text-[#6e5e5d]">You seem to be lost...</div>
                     <div>
                     <div className="mx-auto my-3">
                       <p className="text-center">{randomQuote.text}</p>
