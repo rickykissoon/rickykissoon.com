@@ -1,6 +1,4 @@
-import { useLocation } from "@remix-run/react";
 import { useEffect } from "react";
-
 
 type EventData = Record<string, string | number | boolean>;
 
@@ -19,23 +17,18 @@ export async function trackEvent(eventType: string, data: EventData = {}): Promi
     .catch(err => console.error("Error:", err));
 }
 
-export function useTracking() {
-    const location = useLocation();
-
+export function useTracking(pathname: string) {
     useEffect(() => {
-        trackEvent("page_view", { url: location.pathname });
+        trackEvent("page_view", { url: pathname });
 
         const handleClick = (event: MouseEvent) => {
             const target = event.target as HTMLElement;
-            if (target.dataset.track) {
+            if (target?.dataset?.track) {
                 trackEvent("click", { element: target.dataset.track });
             }
         };
 
         document.addEventListener("click", handleClick);
-
-        return () => {
-            document.removeEventListener("click", handleClick);
-        };
-    }, [location]);
+        return () =>  document.removeEventListener("click", handleClick);
+    }, [pathname]);
 }

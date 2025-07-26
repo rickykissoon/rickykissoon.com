@@ -1,16 +1,14 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Link, useLocation, useNavigation } from "@remix-run/react";
+import { Link, useLocation } from "@remix-run/react";
 
 export default function Menu() {
-    const navigation = useNavigation();
+    const location = useLocation();
     const [isOpen, setIsOpen] = useState(false);
 
     useEffect(() => {
-        if (navigation.state === "loading") {
-            setIsOpen(false);
-        }
-    }, [navigation.state]);
+        setIsOpen(false);
+    }, [location.key]);
 
     return (
         <>

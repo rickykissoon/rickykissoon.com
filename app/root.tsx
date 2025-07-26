@@ -6,6 +6,7 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLocation,
   useRouteError,
 } from "@remix-run/react";
 import type { LinksFunction, LoaderFunction } from "@remix-run/node";
@@ -74,7 +75,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  useTracking();
+  const location = useLocation();
+  useTracking(location.pathname);
 
   return (
     <>
@@ -165,7 +167,6 @@ export function ErrorBoundary() {
             </div>
           </div>
         </div>
-        <Menu />
         <ScrollRestoration />
         <Scripts />
       </body>
