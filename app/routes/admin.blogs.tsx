@@ -3,7 +3,7 @@ import { useActionData } from "@remix-run/react";
 import { getDb } from "~/utils/db.server";
 import QuillEditor from "~/components/QuillEditor";
 import { useEffect, useState } from "react";
-import quillCss from "~/styles/quill.css";
+import quillCss from "~/styles/quill.snow.css?url";
 
 const ADMIN_SECRET = process.env.ADMIN_SECRET;
 
