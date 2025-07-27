@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Link, useLocation } from "@remix-run/react";
+import { Link } from "@remix-run/react";
 
-export default function Menu() {
-    const location = useLocation();
+export default function Menu({
+    currentPath,
+    locationKey
+}: { currentPath: string; locationKey: string}) {
     const [isOpen, setIsOpen] = useState(false);
 
-    useEffect(() => {
-        setIsOpen(false);
-    }, [location.key]);
+    useEffect(() => setIsOpen(false), [locationKey]);
 
     return (
         <>
@@ -36,16 +36,16 @@ export default function Menu() {
                 </div>
                 <ul className="space-y-2 text-white">
                     <li>
-                        <MenuListItem to="/" label="home" />
+                        <MenuListItem to="/" label="home" currentPath={currentPath} />
                     </li>
                     <li>
-                        <MenuListItem to="/secondpage" label="second page" />
+                        <MenuListItem to="/secondpage" label="second page" currentPath={currentPath} />
                     </li>
                     <li>
-                        <MenuListItem to="/blogs" label="blogs" />
+                        <MenuListItem to="/blogs" label="blogs" currentPath={currentPath} />
                     </li>
                     <li>
-                        <MenuListItem to="/randomart-gallery" label="randomart gallery" />
+                        <MenuListItem to="/randomart-gallery" label="randomart gallery" currentPath={currentPath} />
                     </li>
                 </ul>
             </motion.div>
@@ -56,11 +56,11 @@ export default function Menu() {
 interface MenuListItemProps {
     to: string;
     label: string;
+    currentPath: string;
 }
 
-export function MenuListItem({to, label }: MenuListItemProps) {
-    const location = useLocation();
-    const isActive = location.pathname === to;
+export function MenuListItem({to, label, currentPath }: MenuListItemProps) {
+    const isActive = currentPath === to;
     const [isHovered, setIsHovered] = useState(false);
     const hoverStyles = {
         backgroundColor: "#3b0764"
