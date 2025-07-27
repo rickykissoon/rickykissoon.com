@@ -3,7 +3,7 @@ import { useActionData } from "@remix-run/react";
 import { getDb } from "~/utils/db.server";
 import QuillEditor from "~/components/QuillEditor";
 import { useEffect, useState } from "react";
-import quillCss from "quill/dist/quill.snow.css";
+import quillCss from "~/styles/quill.css";
 
 const ADMIN_SECRET = process.env.ADMIN_SECRET;
 
@@ -26,6 +26,10 @@ export const action: ActionFunction = async ({ request }) => {
     const formData = await request.formData();
     const title = formData.get("title") as string;
     const content = formData.get("content") as string;
+
+    useEffect(() => {
+        import("quill/dist/quill.snow.css");
+    }, []);
 
     if (!title || !content) {
         return data({
