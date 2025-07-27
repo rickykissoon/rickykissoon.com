@@ -11,13 +11,11 @@ import {
 } from "@remix-run/react";
 import type { LinksFunction, LoaderFunction } from "@remix-run/node";
 import { createHash } from "crypto";
-
 import "./tailwind.css";
 import { commitSession, getOrCreateSession } from "./sessions";
 import { useTracking } from "./hooks/useTracking";
 import Menu from "./components/Menu";
 import { Post } from "./components/Post";
-import { useEffect } from "react";
 
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -75,13 +73,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  const location = useLocation();
-  useTracking(location.pathname);
+  const {pathname, key} = useLocation();
+  useTracking(pathname);
 
   return (
     <>
       <Outlet />
-      <Menu />
+      <Menu currentPath={pathname} locationKey={key} />
     </>
   );
 }

@@ -1,19 +1,22 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import type { ReactQuillProps } from "react-quill";
 
-export default function QuillEditor({ value, onChange }: { value: string; onChange: (val: string) => void }) {
-    const [Quill, setQuill] = useState<any>(null);
+export default function QuillEditor({ value, onChange }: ReactQuillProps) {
+    const [ReactQuill, setReactQuill] = useState<React.ComponentType<ReactQuillProps> | null>(null);
 
     useEffect(() => {
-        import("react-quill").then((QuillModule) => {
-            setQuill(() => QuillModule.default);
+        let mounted = true;
+        import("react-quill").then(mod => {
+            if (mounted) setReactQuill(() => mod.default);
         });
+        return () => { mounted = false; };
     }, []);
 
-    if (!Quill) return <p>Loading editor...</p>;
+    if (!ReactQuill) return <p>Loading editor...</p>;
 
     return (
         <div className="">
-            <Quill
+            <ReactQuill
                 value={value}
                 onChange={onChange}
                 // theme="snow"

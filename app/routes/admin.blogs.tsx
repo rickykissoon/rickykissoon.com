@@ -1,12 +1,9 @@
-import { ActionFunction, data, LinksFunction, LoaderFunction, redirect } from "@remix-run/node";
+import { ActionFunction, data, LoaderFunction, redirect } from "@remix-run/node";
 import { useActionData } from "@remix-run/react";
-import dotenv from "dotenv";
 import { getDb } from "~/utils/db.server";
 import 'react-quill/dist/quill.snow.css';
 import QuillEditor from "~/components/QuillEditor";
 import { useEffect, useState } from "react";
-
-// dotenv.config();
 
 const ADMIN_SECRET = process.env.ADMIN_SECRET;
 
