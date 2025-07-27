@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { ReactQuillProps } from "react-quill";
+import 'quill/dist/quill.snow.css';
 
 export default function QuillEditor({ value, onChange }: ReactQuillProps) {
     const [ReactQuill, setReactQuill] = useState<React.ComponentType<ReactQuillProps> | null>(null);

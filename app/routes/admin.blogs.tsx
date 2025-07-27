@@ -1,15 +1,10 @@
 import { ActionFunction, data, LoaderFunction, redirect } from "@remix-run/node";
 import { useActionData } from "@remix-run/react";
 import { getDb } from "~/utils/db.server";
-import 'react-quill/dist/quill.snow.css';
 import QuillEditor from "~/components/QuillEditor";
 import { useEffect, useState } from "react";
 
 const ADMIN_SECRET = process.env.ADMIN_SECRET;
-
-// export const links: LinksFunction = () => [
-//     { rel: 'stylesheet', href: quillCss },
-// ]
 
 export const loader: LoaderFunction = async ({ request }) => {
     const url = new URL(request.url);
