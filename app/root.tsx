@@ -17,7 +17,6 @@ import { commitSession, getOrCreateSession } from "./sessions";
 import { useTracking } from "./hooks/useTracking";
 import Menu from "./components/Menu";
 import { Post } from "./components/Post";
-import { useEffect } from "react";
 
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
