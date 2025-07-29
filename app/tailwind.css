@@ -10,3 +10,7 @@ body {
     color-scheme: dark;
   }
 }
+
+.editor-area ul { list-style: disc; margin-left: 1.5rem; }
+.editor-area ol { list-style: decimal; margin-left: 1.5rem; }
+.editor-area li { list-style-position: outside; }

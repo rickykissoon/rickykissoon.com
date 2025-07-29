@@ -1,18 +1,11 @@
-import { ActionFunction, data, LinksFunction, LoaderFunction, redirect } from "@remix-run/node";
+import { ActionFunction, data, LoaderFunction, redirect } from "@remix-run/node";
 import { useActionData } from "@remix-run/react";
-import dotenv from "dotenv";
 import { getDb } from "~/utils/db.server";
-import 'react-quill/dist/quill.snow.css';
-import QuillEditor from "~/components/QuillEditor";
 import { useEffect, useState } from "react";
-
-// dotenv.config();
+import { useHydrated } from "~/hooks/useHydrated";
+import { Editor } from "~/components/Editor/Editor";
 
 const ADMIN_SECRET = process.env.ADMIN_SECRET;
-
-// export const links: LinksFunction = () => [
-//     { rel: 'stylesheet', href: quillCss },
-// ]
 
 export const loader: LoaderFunction = async ({ request }) => {
     const url = new URL(request.url);
@@ -62,7 +55,7 @@ export const action: ActionFunction = async ({ request }) => {
         published: true,
     });
 
-    return redirect("/admin/blogs?key=" + ADMIN_SECRET)
+    return redirect(`/admin/blogs/${uniqueSlug}`);
 }
 
 interface BlogError {
@@ -72,10 +65,7 @@ interface BlogError {
 export default function AdminBlogPage() {
     const actionData: BlogError | undefined = useActionData();
     const [content, setContent] = useState("");
-
-    useEffect(() => {
-        console.log(content);
-    }, [content]);
+    const hydrated = useHydrated();
 
     return (
         <div className="max-w-2xl mx-auto p-6">
@@ -89,7 +79,7 @@ export default function AdminBlogPage() {
                 <input type="text" name="title" placeholder="Title" required className="w-full p-2 border" />
  
                 <div className="mt-1">
-                    <QuillEditor value={content} onChange={setContent} />
+                    <Editor value={content} onChange={setContent} hydrated={hydrated} />
                     <textarea name="content" value={content} hidden readOnly />
                 </div>
 
