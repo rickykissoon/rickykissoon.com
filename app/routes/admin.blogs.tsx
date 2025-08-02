@@ -22,6 +22,7 @@ export const action: ActionFunction = async ({ request }) => {
     const formData = await request.formData();
     const title = formData.get("title") as string;
     const content = formData.get("content") as string;
+    const tagStr = formData.get("tags") as string;
 
     if (!title || !content) {
         return data({
@@ -47,15 +48,22 @@ export const action: ActionFunction = async ({ request }) => {
         counter++;
     }
 
+    const tags = tagStr
+        .split(",")
+        .map(t => t.trim().toLowerCase())
+        .filter(Boolean)
+        .slice(0, 10);
+
     await collection.insertOne({
         title,
         slug: uniqueSlug,
         content,
+        tags,
         createdAt: new Date(),
         published: true,
     });
 
-    return redirect(`/admin/blogs/${uniqueSlug}`);
+    return redirect(`/blogs/${uniqueSlug}`);
 }
 
 interface BlogError {
@@ -81,6 +89,10 @@ export default function AdminBlogPage() {
                 <div className="mt-1">
                     <Editor value={content} onChange={setContent} hydrated={hydrated} />
                     <textarea name="content" value={content} hidden readOnly />
+                </div>
+
+                <div className="mt-1">
+                    <input name="tags" placeholder="Tags: (react, remix, mongodb)" className="w-full p-2 border" />
                 </div>
 
                 <button type="submit" className="bg-[#480d02] text-white px-4 py-2 mt-4">Publish</button>
