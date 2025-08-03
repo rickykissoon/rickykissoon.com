@@ -1,11 +1,13 @@
 import { ActionFunction, data, LoaderFunction, redirect } from "@remix-run/node";
 import { useActionData } from "@remix-run/react";
 import { getDb } from "~/utils/db.server";
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { useHydrated } from "~/hooks/useHydrated";
-import { Editor } from "~/components/Editor/Editor";
+import { ClientOnly } from "~/utils/ClientOnly";
 
 const ADMIN_SECRET = process.env.ADMIN_SECRET;
+
+const DraftEditorClient = lazy(() => import("~/utils/DraftEditor.client"));
 
 export const loader: LoaderFunction = async ({ request }) => {
     const url = new URL(request.url);
@@ -87,7 +89,15 @@ export default function AdminBlogPage() {
                 <input type="text" name="title" placeholder="Title" required className="w-full p-2 border" />
  
                 <div className="mt-1">
-                    <Editor value={content} onChange={setContent} hydrated={hydrated} />
+                    <ClientOnly fallback={<div style={{minHeight: 120}} >Loading Client...</div>}>
+                        {() => {
+                            return(
+                                <Suspense fallback={<div style={{minHeight: 120}} >Loading Suspense...</div>}>
+                                    <DraftEditorClient onChange={setContent} />
+                                </Suspense>
+                            );
+                        }}
+                    </ClientOnly>
                     <textarea name="content" value={content} hidden readOnly />
                 </div>
 
