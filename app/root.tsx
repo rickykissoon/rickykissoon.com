@@ -17,6 +17,7 @@ import { commitSession, getOrCreateSession } from "./sessions";
 import { useTracking } from "./hooks/useTracking";
 import Menu from "./components/Menu";
 import { Post } from "./components/Post";
+import Footer from "./components/Footer";
 
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -62,11 +63,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Meta />
         <Links />
       </head>
-      <body>
-        <div className="">
+      <body className="min-h-dvh flex flex-col">
+        <div className="flex-1">
           {children}
         </div>
-        <div className="h-[60px]"></div>
+        <Footer />
         <ScrollRestoration />
         <Scripts />
       </body>
