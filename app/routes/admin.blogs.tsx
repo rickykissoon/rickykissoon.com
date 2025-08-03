@@ -1,9 +1,10 @@
 import { ActionFunction, data, LoaderFunction, redirect } from "@remix-run/node";
 import { useActionData } from "@remix-run/react";
 import { getDb } from "~/utils/db.server";
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { useHydrated } from "~/hooks/useHydrated";
 import { ClientOnly } from "~/utils/ClientOnly";
+import {stateToHTML} from "draft-js-export-html";
 
 const ADMIN_SECRET = process.env.ADMIN_SECRET;
 
@@ -74,8 +75,9 @@ interface BlogError {
 
 export default function AdminBlogPage() {
     const actionData: BlogError | undefined = useActionData();
+    const [editorRaw, setEditorRaw] = useState<string>("");
     const [content, setContent] = useState("");
-    const hydrated = useHydrated();
+    const [previewHtml, setPreviewHtml] = useState<string>("");
 
     return (
         <div className="max-w-2xl mx-auto p-6">
@@ -92,9 +94,19 @@ export default function AdminBlogPage() {
                     <ClientOnly fallback={<div style={{minHeight: 120}} >Loading Client...</div>}>
                         {() => {
                             return(
+                                <>
                                 <Suspense fallback={<div style={{minHeight: 120}} >Loading Suspense...</div>}>
-                                    <DraftEditorClient onChange={setContent} />
+                                    <DraftEditorClient onChange={setEditorRaw} />
                                 </Suspense>
+                                
+                                <RawToHtmlPreview raw={editorRaw} onHtml={(html) => {
+                                    setPreviewHtml(html);
+                                    setContent(html);
+                                }} />
+
+                                <h2 className="mt-4 mb-2 text-lg font-semibold">Preview</h2>
+                                <div className="" dangerouslySetInnerHTML={{ __html: previewHtml}} />
+                                </>
                             );
                         }}
                     </ClientOnly>
@@ -109,4 +121,53 @@ export default function AdminBlogPage() {
             </form>
         </div>  
     );
+}
+
+function RawToHtmlPreview({
+    raw,
+    onHtml,
+}: {
+    raw: string;
+    onHtml: (html: string) => void;
+}) {
+    useEffect(() => {
+        let cancelled = false;
+
+        async function run() {
+            if (!raw) {
+                if (!cancelled) onHtml("");
+                return;
+            }
+
+            try {
+                const parsed = JSON.parse(raw);
+                const [{ convertFromRaw }, { stateToHTML }] = await Promise.all([
+                    import("draft-js"),
+                    import("draft-js-export-html")
+                ]);
+
+                const contentState = convertFromRaw(parsed);
+                const html = stateToHTML(contentState, {
+                    defaultBlockTag: "p",
+                    inlineStyles: {
+                        BOLD: { element: "strong" },
+                        ITALIC: { element: "em" },
+                        UNDERLINE: { element: "u" },
+                        CODE: { element: "code" },
+                    },
+                });
+
+                if (!cancelled) onHtml(html);
+            } catch (e) {
+                if (!cancelled) onHtml("");
+            }
+        }
+
+        run();
+        return () => {
+            cancelled = true;
+        };
+    }, [raw, onHtml]);
+
+    return null;
 }

@@ -45,6 +45,11 @@ export default function DraftEditorClient({onChange}: {onChange: (value: string)
     const [editorState, setEditorState] = useState(() => EditorState.createEmpty());
 
     useEffect(() => {
+        console.log("[DraftEditor] mounted");
+        return () => console.log("[DraftEditor] unmounted");
+    }, []);
+
+    useEffect(() => {
         const raw = convertToRaw(editorState.getCurrentContent());
         onChange(JSON.stringify(raw));
     }, [editorState, onChange]);
