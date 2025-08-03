@@ -64,12 +64,15 @@ interface BlogPost {
     title: string;
     slug: string;
     content: string;
+    tags: string[];
     createdAt: string;
     viewCount: number;
 }
 
 export default function Blog() {
     const blogPost = useLoaderData<BlogPost>();
+
+    console.log(blogPost);
 
     return(
 		<article className="flex flex-col w-full">
@@ -83,6 +86,11 @@ export default function Blog() {
                 </div>
             </header>
             <section className="mx-3 lg:mx-10 text-base" dangerouslySetInnerHTML={{ __html: blogPost.content }} />
+            <section className="mt-3">
+                {blogPost.tags && blogPost.tags.map((tag, index) => (
+                    <div key={index}>{tag}</div>
+                ))}
+            </section>
         </article>
     );
 }

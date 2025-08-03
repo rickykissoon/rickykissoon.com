@@ -2,13 +2,12 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Link, useLocation } from "@remix-run/react";
 
-export default function Menu() {
-    const location = useLocation();
+export default function Menu({pathname}: {pathname: string}) {
     const [isOpen, setIsOpen] = useState(false);
 
     useEffect(() => {
         setIsOpen(false);
-    }, [location.key]);
+    }, [pathname]);
 
     return (
         <>
@@ -36,16 +35,16 @@ export default function Menu() {
                 </div>
                 <ul className="space-y-2 text-white">
                     <li>
-                        <MenuListItem to="/" label="home" />
+                        <MenuListItem to="/" label="home" pathname={pathname} />
                     </li>
                     <li>
-                        <MenuListItem to="/secondpage" label="second page" />
+                        <MenuListItem to="/secondpage" label="second page" pathname={pathname} />
                     </li>
                     <li>
-                        <MenuListItem to="/blogs" label="blogs" />
+                        <MenuListItem to="/blogs" label="blogs" pathname={pathname} />
                     </li>
                     <li>
-                        <MenuListItem to="/randomart-gallery" label="randomart gallery" />
+                        <MenuListItem to="/randomart-gallery" label="randomart gallery" pathname={pathname} />
                     </li>
                 </ul>
             </motion.div>
@@ -56,11 +55,11 @@ export default function Menu() {
 interface MenuListItemProps {
     to: string;
     label: string;
+    pathname: string
 }
 
-export function MenuListItem({to, label }: MenuListItemProps) {
-    const location = useLocation();
-    const isActive = location.pathname === to;
+export function MenuListItem({to, label, pathname }: MenuListItemProps) {
+    const isActive = pathname === to;
     const [isHovered, setIsHovered] = useState(false);
     const hoverStyles = {
         backgroundColor: "#3b0764"

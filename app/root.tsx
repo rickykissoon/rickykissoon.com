@@ -66,6 +66,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <div className="">
           {children}
         </div>
+        <div className="h-[60px]"></div>
         <ScrollRestoration />
         <Scripts />
       </body>
@@ -80,7 +81,7 @@ export default function App() {
   return (
     <>
       <Outlet />
-      <Menu />
+      <Menu pathname={location.pathname} />
     </>
   );
 }

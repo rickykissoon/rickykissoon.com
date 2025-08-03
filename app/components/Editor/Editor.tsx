@@ -19,7 +19,10 @@ export function Editor({ value, onChange, hydrated = true }: Props) {
     }, [value, hydrated]);
 
     const onInput = () => {
-        if (ref.current) onChange(ref.current.innerHTML);
+        if (ref.current) {
+            onChange(ref.current.innerHTML);
+            console.log(ref.current.innerHTML);
+        }
     };
 
     const keepFocus = (e: React.MouseEvent) => {
@@ -51,6 +54,56 @@ export function Editor({ value, onChange, hydrated = true }: Props) {
         onInput();
     };
 
+    const onKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (e) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+
+            const sel = window.getSelection();
+            if (!sel || sel.rangeCount === 0) {
+                console.log('no selection');
+                return;
+            }
+
+            const range = sel.getRangeAt(0);
+            const preRange = range.cloneRange();
+            preRange.setStart(ref.current!, 0);
+
+            const fragment = preRange.cloneContents();
+
+            const flatNodes: Node[] = [];
+            fragment.childNodes.forEach((node) => {
+                if (node.nodeName.toLowerCase() === "p") {
+                    while (node.firstChild) {
+                        flatNodes.push(node.firstChild);
+                        node = node.firstChild;
+                    }
+                } else {
+                    flatNodes.push(node);
+                }
+            });
+
+            const firstP = document.createElement("p");
+            flatNodes.forEach((node) => firstP.appendChild(node));
+
+            const secondP = document.createElement("p");
+            secondP.innerHTML = "<br>";
+
+            preRange.deleteContents();
+
+            const insertRange = document.createRange();
+            insertRange.setStart(ref.current!, 0);
+            insertRange.collapse(true);
+            insertRange.insertNode(secondP);
+            insertRange.insertNode(firstP);
+
+            const newRange = document.createRange();
+            newRange.setStart(secondP, 0);
+            newRange.collapse(true);
+            sel.removeAllRanges();
+            sel.addRange(newRange);
+        }
+    };
+
     if (!hydrated) return null;
 
     return(
@@ -76,6 +129,7 @@ export function Editor({ value, onChange, hydrated = true }: Props) {
                 suppressContentEditableWarning
                 className="editor-area border border-[#480D02] p-2 min-h-[150px]"
                 onInput={onInput}
+                onKeyDown={onKeyDown}
             />
         </div>
     );

@@ -12,6 +12,9 @@ declare module "@remix-run/node" {
 dotenv.config();
 
 export default defineConfig({
+  define: {
+    global: "globalThis",
+  },
   plugins: [
     remix({
       future: {
