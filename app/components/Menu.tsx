@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Link, useLocation } from "@remix-run/react";
+import { Link } from "@remix-run/react";
 
 export default function Menu({pathname}: {pathname: string}) {
     const [isOpen, setIsOpen] = useState(false);

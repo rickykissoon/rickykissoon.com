@@ -91,6 +91,7 @@ export default function Blog() {
                     <div key={index}>{tag}</div>
                 ))}
             </section>
+            <section className="flex justify-center text-[#ff4f30] text-[10px]">***</section>
         </article>
     );
 }
