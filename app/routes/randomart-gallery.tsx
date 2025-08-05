@@ -1,39 +1,89 @@
 import { LoaderFunction } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { Link, useLoaderData, useSearchParams } from "@remix-run/react";
 import { createHash } from "crypto";
 import { ObjectId } from "mongodb";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { AnimatedRandomart } from "~/components/AnimatedRandomart";
 import { Post } from "~/components/Post";
 import { getOrCreateSession } from "~/sessions";
 import { getDb } from "~/utils/db.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
-    const { session, userId } = await getOrCreateSession(request);
+    const { userId } = await getOrCreateSession(request);
 
+    const url = new URL(request.url);
+    const page = toInt(url.searchParams.get("page"), 1);
+    const perPage = 20;
+    const skip = (page - 1) * perPage;
     const db = await getDb();
     const collection = db.collection("tracking_events");
-    const uniqueUserIds = await collection.aggregate([
-        { $sort: { timestamp: 1 }},
-        { $group: { _id: "$userId", firstEvent: { $first: "$$ROOT" }}},
-        { $sort: { "firstEvent.timestamp": -1 }}
-    ]).toArray();
 
-    const updatedEvents = await Promise.all(
-        uniqueUserIds.map(async (event) => ({
-            ...event,
-            hashedId: event.firstEvent.userId ? await hashUserId(event.firstEvent.userId) : null,
+    const [result] = await collection.aggregate(
+        [
+            { $group: { _id: "$userId", firstTimestamp: { $min: "$timestamp" } } },
+            { $sort: { firstTimestamp: -1 } },
+            {
+                $facet: {
+                    data: [
+                        { $skip: skip },
+                        { $limit: perPage },
+                        {
+                            $project: {
+                                _id: 0,
+                                userId: "$_id",
+                                firstEvent: { timestamp: "$firstTimestamp" },
+                            },
+                        },
+                    ],
+                    meta: [{ $count: "total" }],
+                },
+            },
+            {
+                $project: {
+                    data: 1,
+                    total: { $ifNull: [{ $arrayElemAt: ["$meta.total", 0] }, 0] },
+                },
+            },
+        ],
+        { allowDiskUse: true }
+    ).toArray();
+
+    const pageDocs = result?.data ?? [];
+    const total = result?.total ?? 0;
+    const userEvents = await Promise.all(
+        pageDocs.map(async (d: any) => ({
+            _id: d.userId,
+            hashedId: d.userId ? await hashUserId(d.userId) : null,
+            firstEvent: {
+                timestamp: d.firstEvent.timestamp,
+            },
         }))
     );
 
+    const totalPages = Math.max(1, Math.ceil(total / perPage));
+
     return {
-        userId: await hashUserId(userId),  
-        userEvents: updatedEvents
+        pagination: {
+            page,
+            perPage,
+            total,
+            totalPages,
+            hasPrev: page > 1,
+            hasNext: page < totalPages,
+        },
+        userEvents,
+        userId: await hashUserId(userId),
     };
 }
 
 async function hashUserId(userId: string): Promise<string> {
     return createHash("sha256").update(userId).digest("hex");
+}
+
+function toInt(v: string | null, def: number, min = 1, max = 200) {
+    const n = Number(v);
+    if (!Number.isFinite(n)) return def;
+    return Math.max(min, Math.min(max, Math.floor(n)));
 }
 
 interface EventDocument {
@@ -53,11 +103,30 @@ interface UserEvent {
 interface RandomartGalleryProps {
     userId: string;
     userEvents: UserEvent[];
+    pagination: {
+        page: number; perPage: number; total: number; totalPages: number;
+        hasPrev: boolean; hasNext: boolean;
+    };
 }
 
 export default function RandomartGallery() {
-    const {userEvents} = useLoaderData<RandomartGalleryProps>();
+    const {userEvents, pagination} = useLoaderData<RandomartGalleryProps>();
     const [animationKey, setAnimationKey] = useState(0);
+    const [params] = useSearchParams();
+
+    const prevParams = useMemo(() => {
+        const p = new URLSearchParams(params);
+        p.set("page", String(Math.max(1, pagination.page - 1)));
+        p.set("perPage", String(pagination.perPage));
+        return p.toString();
+    }, [params, pagination.page, pagination.perPage]);
+
+    const nextParams = useMemo(() => {
+        const p = new URLSearchParams(params);
+        p.set("page", String(pagination.page + 1));
+        p.set("perPage", String(pagination.perPage));
+        return p.toString();
+    }, [params, pagination.page, pagination.perPage]);
 
     return(
         <div className="flex w-full">
@@ -86,6 +155,34 @@ export default function RandomartGallery() {
                         {userEvents?.map((userEvent: UserEvent) => (
                             <OneRandomArt key={userEvent._id} userEvent={userEvent} />
                         ))}
+                    </div>
+
+                    <div className="flex item-center justify-between mt-6 text-sm text-[#6e5e5d]">
+                        <div>
+                            Page <strong>{pagination.page}</strong> of <strong>{pagination.totalPages}</strong>
+                            {" • "}
+                            Showing <strong>{pagination.perPage}</strong> per page
+                        </div>
+                        <div className="flex gap-2">
+                            {pagination.hasPrev ? (
+                                <Link
+                                    className="px-3 py-1 border border-[#6e5e5d] hover:bg-[#3b0764] hover:text-white"
+                                    to={`?${prevParams}`}
+                                    preventScrollReset
+                                >← Prev</Link>
+                            ) : (
+                                <span className="px-3 py-1 opacity-40 border border-transparent">← Prev</span>
+                            )}
+                            {pagination.hasNext ? (
+                                <Link
+                                    className="px-3 py-1 border border-[#6e5e5d] hover:bg-[#3b0764] hover:text-white"
+                                    to={`?${nextParams}`}
+                                    preventScrollReset
+                                >Next →</Link>
+                            ) : (
+                                <span className="px-3 py-1 opacity-40 border border-transparent">Next →</span>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
