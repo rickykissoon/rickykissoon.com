@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import {convertToRaw, DraftEditorCommand, Editor, EditorState, getDefaultKeyBinding, RichUtils} from "draft-js";
+import {convertToRaw, DraftEditorCommand, Editor, EditorState, getDefaultKeyBinding, Modifier, RichUtils} from "draft-js";
 import "draft-js/dist/Draft.css";
 
 const INLINE_STYLES = [
@@ -91,19 +91,42 @@ export default function DraftEditorClient({onChange}: {onChange: (value: string)
 
     const handleReturn = useCallback((e: React.KeyboardEvent, state: EditorState): "handled" | "not-handled" => {
         const sel = state.getSelection();
-        const block = state.getCurrentContent().getBlockForKey(sel.getStartKey());
-        const isEmpty = block.getText().length === 0 && block.getType() === "unstyled";
+        const content = state.getCurrentContent();
+        const block = content.getBlockForKey(sel.getStartKey());
+        const type = block.getType();
 
-        if (isEmpty) {
-            setEditorState(RichUtils.insertSoftNewline(editorState));
+        if (type === "code-block") {
+            setEditorState(RichUtils.insertSoftNewline(state));
             return "handled";
         }
+
+        const isEmpty = block.getText().length === 0 && type === "unstyled";
+
+        if (isEmpty) {
+            setEditorState(RichUtils.insertSoftNewline(state));
+            return "handled";
+        }
+
         return "not-handled";
     }, []);
 
     const onTab = useCallback((e: React.KeyboardEvent) => {
-        const maxDepth = 2;
-        setEditorState(RichUtils.onTab(e as any, editorState, maxDepth));
+        const sel = editorState.getSelection();
+        const block = editorState.getCurrentContent().getBlockForKey(sel.getStartKey());
+        const isCode = block.getType() === "code-block";
+
+        if (isCode) {
+            e.preventDefault();
+            const contentWithTab = Modifier.insertText(
+                editorState.getCurrentContent(),
+                sel,
+                "\t"
+            );
+            setEditorState(EditorState.push(editorState, contentWithTab, "insert-characters"));
+            return;
+        }
+
+        setEditorState(RichUtils.onTab(e as any, editorState, 2));
     }, [editorState]);
 
     return(

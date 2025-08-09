@@ -1,6 +1,8 @@
 import { LoaderFunction, MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { getDb } from "~/utils/db.server";
+import { useEffect } from "react";
+import "highlight.js/styles/github-dark.css";
 
 export const loader: LoaderFunction = async ({ params }) => {
     const db = await getDb();
@@ -12,8 +14,6 @@ export const loader: LoaderFunction = async ({ params }) => {
     if (!blogPost) {
         throw new Response("Blog post not found", { status: 404 });
     }
-
-    console.log(`/blogs/${blogHandle}`);
 
     const tracking_collection = db.collection("tracking_events");
     const uniqueUserCount = await tracking_collection.aggregate([
@@ -72,7 +72,23 @@ interface BlogPost {
 export default function Blog() {
     const blogPost = useLoaderData<BlogPost>();
 
-    console.log(blogPost);
+    useEffect(() => {
+        (async () => {
+            const hljs = (await import("highlight.js/lib/core")).default;
+            const javascript = (await import("highlight.js/lib/languages/javascript")).default;
+            const typescript = (await import("highlight.js/lib/languages/typescript")).default;
+            const bash = (await import("highlight.js/lib/languages/bash")).default; // example extra
+            hljs.registerLanguage("javascript", javascript);
+            hljs.registerLanguage("typescript", typescript);
+            hljs.registerLanguage("bash", bash);
+  
+            document.querySelectorAll('pre code:not([class*="language-"])')
+                .forEach((el) => el.classList.add("language-javascript"));
+  
+            document.querySelectorAll<HTMLElement>("article pre code")
+                .forEach((block) => hljs.highlightElement(block));
+        })();
+    }, []);
 
     return(
 		<article className="flex flex-col w-full">
