@@ -13,8 +13,6 @@ export const loader: LoaderFunction = async ({ params }) => {
         throw new Response("Blog post not found", { status: 404 });
     }
 
-    console.log(`/blogs/${blogHandle}`);
-
     const tracking_collection = db.collection("tracking_events");
     const uniqueUserCount = await tracking_collection.aggregate([
         {
@@ -71,8 +69,6 @@ interface BlogPost {
 
 export default function Blog() {
     const blogPost = useLoaderData<BlogPost>();
-
-    console.log(blogPost);
 
     return(
 		<article className="flex flex-col w-full">

@@ -14,3 +14,13 @@ body {
 .editor-area ul { list-style: disc; margin-left: 1.5rem; }
 .editor-area ol { list-style: decimal; margin-left: 1.5rem; }
 .editor-area li { list-style-position: outside; }
+
+@layer base {
+  pre code {
+    @apply block bg-[#201E21] text-[#9939AD] p-4 my-4 overflow-x-auto font-mono text-sm;
+  }
+
+  pre code br {
+    @apply hidden;
+  }
+}
