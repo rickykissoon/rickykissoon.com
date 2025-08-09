@@ -90,11 +90,11 @@ export default function Blogs() {
 
                     <div className="mt-6 flex justify-between">
                         {page > 1 ? (
-                            <Link to={`?page=${page - 1}`} className="bg-gray-300 px-4 py-2 rounded">Previous</Link>
+                            <Link to={`?page=${page - 1}`} className="bg-[#290701] border-[#480d02] border-[1px] px-2 py-[2px] text-[#ff4f30]">Previous</Link>
                         ) : <div />}
 
                         {page < totalPages ? (
-                            <Link to={`?page=${page + 1}`} className="bg-gray-300 px-4 py-2 rounded">Next</Link>
+                            <Link to={`?page=${page + 1}`} className="bg-[#290701] border-[#480d02] border-[1px] px-2 py-[2px] text-[#ff4f30]">Next</Link>
                         ) : <div />}
                     </div>
                 </div>
