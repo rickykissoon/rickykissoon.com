@@ -80,7 +80,7 @@ export default function Blogs() {
                         <div className="mx-auto h-4">.</div>
                     </div>
 
-                    <div className="mt-3 gap-3">
+                    <div className="flex flex-col mt-3 gap-3">
                         {blogs.length === 0 ? <p>No blogs yet</p> : (
                             blogs.map((blog) => (
                                 <BlogSnippet key={blog._id} title={blog.title} handle={blog.slug} snippet={blog.snippet} />
@@ -105,7 +105,7 @@ export default function Blogs() {
 
 export function BlogSnippet({title, handle, snippet}: {title: string, handle: string, snippet: string}) {
     return(
-        <>
+        <Link to={`/blogs/${handle}`}>
             <div className="flex justify-between bg-[#290701] border-[#480d02] border-[1px] mt-1 text-[#ff4f30]">
                 <div className="flex justify-center flex-col border-r-[1px] h-[35px] border-[#480d02] px-2">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
@@ -114,16 +114,14 @@ export function BlogSnippet({title, handle, snippet}: {title: string, handle: st
                 </div>
                 <div className="mx-2 my-auto">{title}</div>
                 <div className="flex justify-center flex-col border-l-[1px] h-[35px] border-[#480d02] px-2">
-                    <Link to={`/blogs/${handle}`}>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H2.25" />
-                        </svg>
-                    </Link>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H2.25" />
+                    </svg>
                 </div>
             </div>
             <div className="border-[1px] border-t-0 border-[#6e5e5d] font-extralight text-sm px-3 py-3 rounded-br-md">
                 {snippet}
             </div>
-        </>
+        </Link>
     );
 }
