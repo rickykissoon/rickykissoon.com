@@ -9,14 +9,10 @@ const ENVIRONMENT = process.env.ENVIRONMENT;
 export const loader: LoaderFunction = async ({ params }) => {
     const db = await getDb();
     const collection = db.collection("blogs");
-
     const { blogHandle } = params;
     const blogPost = await collection.findOne({ slug: blogHandle });
-
     const isProd = ENVIRONMENT === 'production';
     const isTest = blogPost && blogPost?.tags?.includes('test') || false;
-
-    console.log('isProd', isProd, 'isTest', isTest);
 
     if(isProd && isTest) return redirect("/");
 
@@ -111,12 +107,17 @@ export default function Blog() {
                 </div>
             </header>
             <section className="mx-3 lg:mx-10 text-base" dangerouslySetInnerHTML={{ __html: blogPost.content }} />
-            <section className="mt-3">
-                {blogPost.tags && blogPost.tags.map((tag, index) => (
-                    <div key={index}>{tag}</div>
-                ))}
-            </section>
-            <section className="flex justify-center text-[#ff4f30] text-[10px]">***</section>
+            <section className="flex justify-center text-[#ff4f30] mt-5 text-[10px]">***</section>
+            {blogPost?.tags && (
+                <section className="flex flex-col gap-2 mt-5 m-3">
+                    <div className="w-full border-t border-[#480d02]" />
+                    <div className="flex gap-2">
+                        {blogPost.tags.map((tag, index) => (
+                            <div key={index} className="bg-[#290701] border-[#480d02] border-[1px] px-2 py-[2px] text-[#ff4f30]">{tag}</div>
+                        ))}
+                    </div>
+                </section>
+            )}
         </article>
     );
 }
