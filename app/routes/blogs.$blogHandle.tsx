@@ -1,8 +1,10 @@
-import { LoaderFunction, MetaFunction } from "@remix-run/node";
+import { LoaderFunction, MetaFunction, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { getDb } from "~/utils/db.server";
 import { useEffect } from "react";
 import "highlight.js/styles/github-dark.css";
+
+const ENVIRONMENT = process.env.ENVIRONMENT;
 
 export const loader: LoaderFunction = async ({ params }) => {
     const db = await getDb();
@@ -10,6 +12,13 @@ export const loader: LoaderFunction = async ({ params }) => {
 
     const { blogHandle } = params;
     const blogPost = await collection.findOne({ slug: blogHandle });
+
+    const isProd = ENVIRONMENT === 'production';
+    const isTest = blogPost && blogPost?.tags?.includes('test') || false;
+
+    console.log('isProd', isProd, 'isTest', isTest);
+
+    if(isProd && isTest) return redirect("/");
 
     if (!blogPost) {
         throw new Response("Blog post not found", { status: 404 });
