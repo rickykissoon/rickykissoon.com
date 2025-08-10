@@ -1,33 +1,25 @@
 import { LoaderFunction } from "@remix-run/node";
 import { Link, Outlet, useLoaderData, useLocation } from "@remix-run/react";
-import { getDb } from "~/utils/db.server";
+import { BlogSnippet, listBlogs } from "~/utils/blog.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
-    const db = await getDb();
-    const collection = db.collection("blogs");
-    const blogs = await collection.find({}).sort({ createdAt: -1}).limit(5).toArray();
+    const {items: blogs} = await listBlogs({
+        select: ["id", "title", "slug", "content", "tags", "createdAt"],
+    });
 
     return {
-        blogs: blogs.map((blog) => ({
-            _id: blog._id.toString(),
-            title: blog.title,
-            slug: blog.slug,
-            createdAt: blog.createdAt.toISOString(),
-        })),
+        blogs,
+		isProd: process.env.ENVIRONMENT === 'production'
     };
 }
 
 interface BlogTemplateLoader {
-    blogs: {
-        _id: string;
-        title: string;
-        slug: string;
-        createdAt: string;
-    }[];
+    blogs: BlogSnippet[];
+    isProd: boolean;
 }
 
 export default function BlogsTemplate() {
-    const {blogs} = useLoaderData<BlogTemplateLoader>();
+    const {blogs, isProd} = useLoaderData<BlogTemplateLoader>();
     const location = useLocation();
 
     return(
@@ -45,7 +37,7 @@ export default function BlogsTemplate() {
                         </Link>
                     </div>
                 )}
-                <SideMenuCard name="blogs" items={blogs.map((b) => ({to: b.slug, label: b.title })) ?? []} basePath="/blogs/" />
+                <SideMenuCard name="blogs" items={blogs.map((b) => ({to: b.slug, label: b.title, disabled: (b.tags?.includes('test') && isProd) || false })) ?? []} basePath="/blogs/" />
                 {/* {location.pathname === "/blogs" && (
                     <SideMenuCard name="filters" items={[
                         { to: "?tag=filter", label: "filter" }
@@ -77,11 +69,11 @@ export function SideMenuCard({name, items, basePath}: SideMenuCardProps) {
             <div className="flex flex-col text-[11px]">
                 <div className="py-1 text-center text-[10px] bg-[#480d02]">{name}</div>
                 <div className="flex flex-col gap-2 ml-2 my-2">
-                    {items.length > 0 && items.map(({to, label}, index) => {
+                    {items.length > 0 && items.map(({to, label, disabled}, index) => {
                         const href = basePath ? `${basePath}${to}` : to
                         const isActive = pathname === href;
 
-                        if (isActive) {
+                        if (isActive || disabled) {
                             return <div key={index} className="text-[#6e5e5d]">{label}</div>
                         } else {
                             return (

@@ -4,14 +4,12 @@ import { getDb } from "~/utils/db.server";
 import { useEffect } from "react";
 import "highlight.js/styles/github-dark.css";
 
-const ENVIRONMENT = process.env.ENVIRONMENT;
-
 export const loader: LoaderFunction = async ({ params }) => {
     const db = await getDb();
     const collection = db.collection("blogs");
     const { blogHandle } = params;
     const blogPost = await collection.findOne({ slug: blogHandle });
-    const isProd = ENVIRONMENT === 'production';
+    const isProd = process.env.ENVIRONMENT === 'production';
     const isTest = blogPost && blogPost?.tags?.includes('test') || false;
 
     if(isProd && isTest) return redirect("/");
