@@ -96,9 +96,9 @@ export default function Blog() {
     }, []);
 
     return(
-		<article className="flex flex-col w-full">
-			<header className="m-3 lg:mx-10">
-                <div className="flex flex-col bg-[#290701] border-[#480d02] border-[1px] mt-1 text-[#ff4f30]">
+		<article className="flex flex-col">
+			<header className="">
+                <div className="flex flex-col bg-[#290701] border-[#480d02] border-[1px] text-[#ff4f30]">
                     <h1 className="mx-2 text-[32px] md:text-[64px] my-auto">{blogPost.title}</h1>
                 </div>
                 <div className="flex justify-between my-3 text-xs border-[#480d02] pb-2 border-b-[1px]">
@@ -106,10 +106,10 @@ export default function Blog() {
                     <div className="text-[#6e5e5d]">{blogPost.viewCount} view{blogPost.viewCount === 1 ? '' : 's'}</div>
                 </div>
             </header>
-            <section className="mx-3 lg:mx-10 text-base" dangerouslySetInnerHTML={{ __html: blogPost.content }} />
+            <section className="text-base" dangerouslySetInnerHTML={{ __html: blogPost.content }} />
             <section className="flex justify-center text-[#ff4f30] mt-5 text-[10px]">***</section>
             {blogPost?.tags && (
-                <section className="flex flex-col gap-2 mt-5 m-3">
+                <section className="flex flex-col gap-2 mt-5">
                     <div className="w-full border-t border-[#480d02]" />
                     <div className="flex gap-2">
                         {blogPost.tags.map((tag, index) => (

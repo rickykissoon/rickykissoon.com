@@ -88,6 +88,8 @@ export default function App() {
 }
 
 export function ErrorBoundary() {
+  const location = useLocation();
+  useTracking(location.pathname);
   const error = useRouteError();
   const quotes = [
     {
@@ -168,6 +170,7 @@ export function ErrorBoundary() {
             </div>
           </div>
         </div>
+        <Menu pathname={location.pathname} />
         <ScrollRestoration />
         <Scripts />
       </body>

@@ -10,7 +10,7 @@ export function Post({icon, title, body }: PostProps){
 
     return(
         <>
-            <div className="flex bg-[#290701] border-[#480d02] border-[1px] mt-1 text-[#ff4f30]">
+            <div className="flex bg-[#290701] border-[#480d02] border-[1px] text-[#ff4f30]">
                 <div className="flex justify-center flex-col border-r-[1px] h-[35px] border-[#480d02] px-2">
                     {icon}
                 </div>
