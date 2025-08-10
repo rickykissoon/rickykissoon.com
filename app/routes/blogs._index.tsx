@@ -61,8 +61,8 @@ export default function Blogs() {
     const { blogs, page, totalPages } = useLoaderData<BlogsProps>();
 
     return(
-        <div className="flex w-full">
-            <div className="m-3 lg:mx-10 w-full">
+        <div className="flex">
+            <div className="w-full">
                 <div className="max-w-[700px]">
                     <Post
                         icon={
