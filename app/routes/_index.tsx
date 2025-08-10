@@ -1,10 +1,12 @@
-import type { MetaFunction } from "@remix-run/node";
-import { Link, useMatches } from "@remix-run/react";
+import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
+import { Link, useLoaderData, useMatches } from "@remix-run/react";
 import { useState } from "react";
 import { AnimatedRandomart } from "~/components/AnimatedRandomart";
 import { DecodingText } from "~/components/DecodingText";
 import { Post } from "~/components/Post";
 import { RootLoaderData } from "~/root";
+import { BlogSnippet, listBlogs } from "~/utils/blog.server";
+import { formatElapsedSubset, useNowSecond } from "~/utils/tools";
 
 export const meta: MetaFunction = () => {
 	return [
@@ -13,12 +15,29 @@ export const meta: MetaFunction = () => {
 	];
 };
 
+export async function loader({request}: LoaderFunctionArgs) {
+	const {items: blogs} = await listBlogs({
+		select: ["id", "title", "slug", "tags", "createdAt"]
+	});
+
+	return {
+		blogs,
+		isProd: process.env.ENVIRONMENT === 'production'
+	};
+}
+
+interface IndexProps {
+	blogs: BlogSnippet[];
+	isProd: boolean;
+}
+
 export default function Index() {
+	const { blogs, isProd } = useLoaderData<IndexProps>();
+	const now = useNowSecond();
 	const matches = useMatches();
 	const rootMatch = matches.find((match) => match.id === "root");
 	const data = rootMatch?.data as RootLoaderData | undefined;
 	const userId = data?.userId;
-
 	
 	return (
 		<div className="flex w-full">
@@ -29,7 +48,7 @@ export default function Index() {
 				</div>
 				<div className="text-sm mt-[-6px]">Software Developer</div>
 
-				<div className="mt-7 max-w-[700px]">
+				<div className="flex flex-col gap-2 mt-7 max-w-[700px]">
 					<Post
 						icon={
 							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
@@ -45,7 +64,10 @@ export default function Index() {
 							</div>
 						}
 						body={
-							<div>Welcome to my corner of the internet.
+							<div>
+								<p>
+									Welcome to my corner of the internet. This will serve as my portfolio, blog, and personal pastebin. Hopefully you find its contents interesting or useful.
+								</p>
 
 								<div className="flex mt-2 gap-3 text-[#6e5e5d] justify-end">
 									<div>
@@ -62,6 +84,36 @@ export default function Index() {
 							</div>
 						}
 					/>
+
+					<Post
+                        icon={
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                            </svg>
+                        } 
+                        title={<div>Blogs</div>} 
+                        body={
+							<div className="flex flex-col gap-2 text-[#ff4f30]">
+								{blogs && blogs.map((blog) => {
+									const elapsedMs = now - new Date(blog.createdAt).getTime();
+									const formatted = formatElapsedSubset(elapsedMs, ["days", "hours", "minutes", "seconds"]);
+									const isTest = blog?.tags?.includes("test") || false;
+
+									return(
+										<div key={blog.id} className="flex gap-2">
+											<div className="text-[12px] tracking-tighter text-[#6e5e5d]">{formatted} | {isTest && '[TEST] | '}</div>
+
+											{isProd && isTest ? (
+												<div className="underline text-ellipsis text-[#6e5e5d]">{blog.title}</div>
+											) : (
+												<Link to={`/blogs/${blog.slug}`} className="underline text-ellipsis">{blog.title}</Link>
+											)}
+										</div>
+									);
+								})}
+							</div>
+						} 
+                    />
 
 					<R1Key userId={userId} />
 
