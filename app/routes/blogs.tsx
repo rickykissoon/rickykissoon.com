@@ -44,7 +44,9 @@ export default function BlogsTemplate() {
                     ]} />
                 )} */}
             </div>
-            <Outlet />
+            <div className="flex-1 min-w-0">
+                <Outlet />
+            </div>
         </article>
     );
 }

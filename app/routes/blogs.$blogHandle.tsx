@@ -104,7 +104,7 @@ export default function Blog() {
                     <div className="text-[#6e5e5d]">{blogPost.viewCount} view{blogPost.viewCount === 1 ? '' : 's'}</div>
                 </div>
             </header>
-            <section className="text-base" dangerouslySetInnerHTML={{ __html: blogPost.content }} />
+            <section className="blog-content text-base" dangerouslySetInnerHTML={{ __html: blogPost.content }} />
             <section className="flex justify-center text-[#ff4f30] mt-5 text-[10px]">***</section>
             {blogPost?.tags && (
                 <section className="flex flex-col gap-2 mt-5">
