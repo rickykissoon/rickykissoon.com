@@ -82,18 +82,12 @@ function formatElapsed(ms: number, units: Unit[]) {
     };
 }
 
-export function useNowSecond() {
-    const [now, setNow] = useState(() => Date.now());
+export function useNowSecond(initialNow?: number) {
+    const [now, setNow] = useState(initialNow ?? Date.now());
 
     useEffect(() => {
-        const ms = 1000 - (now % 1000);
-        const t0 = setTimeout(() => {
-            setNow(Date.now());
-            const iv = setInterval(() => setNow(Date.now()), 1000);
-            return () => clearInterval(iv);
-        }, ms);
-
-        return () => clearTimeout(t0);
+        const id = setInterval(() => setNow(Date.now()), 1000);
+        return () => clearInterval(id);
     }, []);
 
     return now;
