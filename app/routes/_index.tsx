@@ -15,6 +15,7 @@ export const meta: MetaFunction = () => {
 	];
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function loader({request}: LoaderFunctionArgs) {
 	const {items: blogs} = await listBlogs({
 		select: ["id", "title", "slug", "tags", "createdAt"]
@@ -22,18 +23,20 @@ export async function loader({request}: LoaderFunctionArgs) {
 
 	return {
 		blogs,
-		isProd: process.env.ENVIRONMENT === 'production'
+		isProd: process.env.ENVIRONMENT === 'production',
+		serverNow: Date.now(),
 	};
 }
 
 interface IndexProps {
 	blogs: BlogSnippet[];
 	isProd: boolean;
+	serverNow: number;
 }
 
 export default function Index() {
-	const { blogs, isProd } = useLoaderData<IndexProps>();
-	const now = useNowSecond();
+	const { blogs, isProd, serverNow } = useLoaderData<IndexProps>();
+	const now = useNowSecond(serverNow);
 	const matches = useMatches();
 	const rootMatch = matches.find((match) => match.id === "root");
 	const data = rootMatch?.data as RootLoaderData | undefined;
@@ -173,7 +176,7 @@ function R1Key({userId}: {userId: string | undefined}) {
 					<div className="flex pt-0 p-3 pb-0 gap-3 text-[#6e5e5d] justify-between">
 						{openExplanation ? (
 							<svg onClick={() => setOpenExplanation((prev) => !prev)} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 cursor-pointer">
-  							<path strokeLinecap="round" strokeLinejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+							<path strokeLinecap="round" strokeLinejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
 							</svg>
 						) : (
 							<svg onClick={() => setOpenExplanation((prev) => !prev)} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 cursor-pointer">
