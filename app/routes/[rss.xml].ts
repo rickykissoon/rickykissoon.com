@@ -46,7 +46,7 @@ export async function loader({request}: LoaderFunctionArgs) {
 
     return new Response(xml, { 
         headers: { 
-            "Content-Type": "application/rss+xml; charset=utf-8",
+            "Content-Type": "application/xml",
             "Cache-Control": "public, max-age=300, s-maxage=300",
         },
     });
@@ -58,4 +58,4 @@ function xmlEscape(str: string) {
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&apos;");
-};
+}
