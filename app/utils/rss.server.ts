@@ -30,9 +30,21 @@ const FEEDS = [
 const TTL_MS = 5 * 60 * 1000;
 const cache = new Map<string, CacheEntry>();
 
+function toTime(iso?: string) {
+    const t = iso ? Date.parse(iso) : NaN;
+    return Number.isFinite(t) ? t : 0;
+}
+
+const byIsoDesc = (a: FeedItem, b: FeedItem) => toTime(b.isoDate) - toTime(a.isoDate);
+
 export async function getAllFeeds() {
     const results = await Promise.all(FEEDS.map(getOneFeed));
-    return results.flat().sort((a, b) => (new Date(b.isoDate || 0).getTime()) - (new Date(a.isoDate || 0).getTime()));
+    return results.flat().sort(byIsoDesc);
+}
+
+export async function getLatestArticles(limit = 5): Promise<FeedItem[]> {
+    const perFeed = await Promise.all(FEEDS.map(async (u) => (await getOneFeed(u)).slice(0, limit)));
+    return perFeed.flat().sort(byIsoDesc).slice(0, limit);
 }
 
 async function getOneFeed(url: string): Promise<FeedItem[]> {

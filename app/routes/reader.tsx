@@ -111,14 +111,14 @@ export default function Reader() {
 
             <ul className="space-y-3">
                 {items.map((it) => (
-                    <FeedItem key={it._id || it.link} item={it} />  
+                    <FeedComponent key={it._id || it.link} item={it} />  
                 ))}
             </ul>
         </div>
     );
 }
 
-function FeedItem({ item }: { item: ReaderItem }) {
+export function FeedComponent({ item, expandable = true }: { item: ReaderItem, expandable?: boolean }) {
     const [expanded, setExpanded] = useState(false);
     const fetcher = useFetcher();
 
@@ -129,7 +129,7 @@ function FeedItem({ item }: { item: ReaderItem }) {
                     {item.title || item.link}
                 </a>
                 <div className="flex items-center gap-2">
-                    {item.isNew && <span className="text-xs bg-green-700 text-white px-2 py-[2px] rounded">NEW</span>}
+                    {expandable && item.isNew && <span className="bg-[#290701] border-[#480d02] border px-2 text-xs text-[#ff4f30]">NEW</span>}
                     <fetcher.Form method="POST">
                         <input type="hidden" name="intent" value={item.isRead ? "MARK-UNREAD" : "MARK-READ"} />
                         <input type="hidden" name="id" value={item._id} />
@@ -144,21 +144,25 @@ function FeedItem({ item }: { item: ReaderItem }) {
                 {item.feedTitle} • {item.isoDate ? new Date(item.isoDate).toLocaleString() : "no date"}
             </div>
 
-            {(!expanded || !item.contentHtml) && item.summary && (
-                <div className="prose prose-invert max-w-none mt-2">{item.summary}</div>
-            )}
+            {expandable && (
+                <>
+                    {(!expanded || !item.contentHtml) && item.summary && (
+                        <div className="prose prose-invert max-w-none mt-2">{item.summary}</div>
+                    )}
 
-            {expanded && item.contentHtml && (
-                <div className="prose prose-invert max-w-none mt-2"
-                    dangerouslySetInnerHTML={{ __html: item.contentHtml }} />
-            )}
+                    {expanded && item.contentHtml && (
+                        <div className="prose prose-invert max-w-none mt-2"
+                            dangerouslySetInnerHTML={{ __html: item.contentHtml }} />
+                    )}
 
-            {item.contentHtml && (
-                <button className="mt-2 text-xs underline"
-                    onClick={() => setExpanded((v) => !v)}>
-                        {expanded ? "Show less": "Show full"}
-                </button>
+                    {item.contentHtml && (
+                        <button className="mt-2 text-xs underline"
+                            onClick={() => setExpanded((v) => !v)}>
+                                {expanded ? "Show less": "Show full"}
+                        </button>
+                    )}
+                </>
             )}
         </li>
-    )
+    );
 }
