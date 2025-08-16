@@ -1,5 +1,9 @@
-import { LoaderFunctionArgs } from "@remix-run/node";
+import { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
 import { listBlogs } from "~/utils/blog.server";
+
+export const links: LinksFunction = () => {
+    return [];
+};
 
 export async function loader({request}: LoaderFunctionArgs) {
     const { items } = await listBlogs({
@@ -30,7 +34,6 @@ export async function loader({request}: LoaderFunctionArgs) {
 
     const now = new Date().toUTCString();
     const xml = `<?xml version="1.0" encoding="UTF-8" ?>
-    <?xml-stylesheet type="text/xsl" href="/rss.xsl"?>
     <rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom">
         <channel>
             <title>Ricky Kissoon - Blog</title>
@@ -47,7 +50,6 @@ export async function loader({request}: LoaderFunctionArgs) {
     return new Response(xml, { 
         headers: { 
             "Content-Type": "application/xml",
-            "Cache-Control": "public, max-age=300, s-maxage=300",
         },
     });
 }
