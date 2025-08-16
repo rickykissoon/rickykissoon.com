@@ -5,14 +5,14 @@ export const lastSeenCookie = createCookie("reader_last_seen", {
     httpOnly: true,
     sameSite: "lax",
     path: "/",
-    maxAge: 60 * 60 * 24 * 365,
+    maxAge: 60 * 60 * 24 * 180,
 });
 
 export const readIdsCookie = createCookie("reader_read_ids", {
     httpOnly: true,
     sameSite: "lax",
     path: "/",
-    maxAge: 60 * 60 * 24 * 365,
+    maxAge: 60 * 60 * 24 * 180,
 });
 
 export function shortId(id: string) {

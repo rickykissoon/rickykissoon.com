@@ -6,6 +6,7 @@ import { DecodingText } from "~/components/DecodingText";
 import { Post } from "~/components/Post";
 import { RootLoaderData } from "~/root";
 import { BlogSnippet, listBlogs } from "~/utils/blog.server";
+import { getLatestArticles } from "~/utils/rss.server";
 import { formatElapsedSubset, useNowSecond } from "~/utils/tools";
 
 export const meta: MetaFunction = () => {
@@ -17,12 +18,16 @@ export const meta: MetaFunction = () => {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function loader({request}: LoaderFunctionArgs) {
-	const {items: blogs} = await listBlogs({
-		select: ["id", "title", "slug", "tags", "createdAt"]
-	});
+	const [{items: blogs}, feed] = await Promise.all([
+		await listBlogs({
+			select: ["id", "title", "slug", "tags", "createdAt"]
+		}),
+		await getLatestArticles()
+	]);
 
 	return {
 		blogs,
+		feed,
 		isProd: process.env.ENVIRONMENT === 'production',
 		serverNow: Date.now(),
 	};
@@ -30,12 +35,27 @@ export async function loader({request}: LoaderFunctionArgs) {
 
 interface IndexProps {
 	blogs: BlogSnippet[];
+	feed: {
+        _id: string;
+        isRead: boolean;
+        isNew: boolean;
+        summary: string;
+        hasFull: boolean;
+        feedUrl: string;
+        feedTitle?: string | undefined;
+        guid?: string | undefined;
+        title?: string | undefined;
+        link?: string | undefined;
+        isoDate?: string | undefined;
+        contentHtml?: string | undefined;
+        contentSnippet?: string | undefined;
+    }[];
 	isProd: boolean;
 	serverNow: number;
 }
 
 export default function Index() {
-	const { blogs, isProd, serverNow } = useLoaderData<IndexProps>();
+	const { blogs, feed, isProd, serverNow } = useLoaderData<IndexProps>();
 	const now = useNowSecond(serverNow);
 	const matches = useMatches();
 	const rootMatch = matches.find((match) => match.id === "root");
@@ -99,7 +119,7 @@ export default function Index() {
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
                             </svg>
                         } 
-                        title={<div>Blogs</div>} 
+                        title={<Link to="/blogs" prefetch="render">Blogs</Link>} 
                         body={
 							<div className="flex flex-col gap-2 text-[#ff4f30]">
 								{blogs && blogs.map((blog) => {
@@ -119,6 +139,34 @@ export default function Index() {
 										</div>
 									);
 								})}
+							</div>
+						} 
+                    />
+
+					<Post
+                        icon={
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                            </svg>
+                        } 
+                        title={<Link to="/reader" prefetch="render">RSS Feeds</Link>} 
+                        body={
+							<div className="flex flex-col gap-2 text-[#ff4f30]">
+								<ul className="space-y-3">
+									{feed.map((f, i) => {
+										const elapsedMs = now - new Date(f.isoDate || "").getTime();
+										const formatted = formatElapsedSubset(elapsedMs, ["days", "hours", "minutes", "seconds"]);
+										
+										return(
+											<div key={i} className="flex gap-2">
+												<div className="text-[12px] tracking-tighter text-[#6e5e5d]">{formatted} | [{f.feedTitle}] |</div>
+												<a href={f.link} target="_blank" rel="noreferrer" className="underline">
+                    								{f.title || f.link}
+                								</a>
+											</div>
+										);
+									})}
+								</ul>
 							</div>
 						} 
                     />
