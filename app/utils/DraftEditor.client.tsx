@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import {convertToRaw, DraftEditorCommand, Editor, EditorState, getDefaultKeyBinding, Modifier, RichUtils} from "draft-js";
+import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
+import {CompositeDecorator, ContentBlock, ContentState, convertToRaw, DraftEditorCommand, Editor, EditorState, getDefaultKeyBinding, Modifier, RichUtils} from "draft-js";
 import "draft-js/dist/Draft.css";
 
 const INLINE_STYLES = [
@@ -41,8 +41,39 @@ function StyleButton({active, label, title, onToggle}: {active:boolean; label:st
     );
 }
 
+function findLinkEntities(block: ContentBlock, callback: (start: number, end: number) => void, contentState: ContentState) {
+    block.findEntityRanges((char) => {
+        const key = char.getEntity();
+        return key !== null && contentState.getEntity(key).getType() === "LINK";
+    }, callback);
+}
+
+export function LinkEntity({contentState, entityKey, children}: {contentState: ContentState, entityKey: string, children: ReactNode}) {
+    const { url } = contentState.getEntity(entityKey).getData() as { url: string };
+    
+    return (
+        <a href={url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "underline" }}>
+            {children}
+        </a>
+    );
+}
+
+function normalizeUrl(u: string) {
+    const t = u.trim();
+    if (!t) return t;
+    return /^https?:\/\//i.test(t) ? t :`https://${t}`;
+}
+
+function isLikelyUrl(text: string) {
+    return /^(https?:\/\/|www\.)[^\s]+$/i.test(text.trim());
+}
+
 export default function DraftEditorClient({onChange}: {onChange: (value: string) => void}) {
-    const [editorState, setEditorState] = useState(() => EditorState.createEmpty());
+    const decorator = useMemo(() => new CompositeDecorator([
+        { strategy: findLinkEntities, component: LinkEntity },
+    ]), []);
+
+    const [editorState, setEditorState] = useState(() => EditorState.createEmpty(decorator));
 
     useEffect(() => {
         console.log("[DraftEditor] mounted");
@@ -70,14 +101,58 @@ export default function DraftEditorClient({onChange}: {onChange: (value: string)
         return block.getType();
     }, [content, selection]);
 
+    const addLink = useCallback(() => {
+        const sel = editorState.getSelection();
+        if (sel.isCollapsed()) return;
+
+        const block = editorState.getCurrentContent().getBlockForKey(sel.getStartKey());
+        if (block.getType() === "code-block") return;
+
+        let url = window.prompt("Enter URL");
+        if (!url) return;
+        url = normalizeUrl(url);
+        if (!url) return;
+
+        const content = editorState.getCurrentContent();
+        const contentWithEntity = content.createEntity("LINK", "MUTABLE", { url });
+        const entityKey = contentWithEntity.getLastCreatedEntityKey();
+        const withEntityState = EditorState.set(editorState, { currentContent: contentWithEntity });
+
+        setEditorState(RichUtils.toggleLink(withEntityState, sel, entityKey));
+    }, [editorState]);
+
+    const removeLink = useCallback(() => {
+        const sel = editorState.getSelection();
+        if (sel.isCollapsed()) return;
+        setEditorState(RichUtils.toggleLink(editorState, sel, null));
+    }, [editorState]);
+
     const keyBindingFn = useCallback((e: React.KeyboardEvent): DraftEditorCommand | null => {
-        if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "u") return "underline";
+        const isMod = e.metaKey || e.ctrlKey;
+        const k = e.key.toLowerCase();
+
+        if (isMod && k === "u") return "underline";
+        if (isMod && k === "k" && e.shiftKey) return "remove-link" as unknown as DraftEditorCommand;
+        if (isMod && k === "k") return "add-link" as unknown as DraftEditorCommand;
+
         return getDefaultKeyBinding(e as any);
     }, []);
 
     const handleKeyCommand = useCallback((command: DraftEditorCommand, state: EditorState) => {
-        if (command === "underline") {
+        const cmd = command as unknown as string;
+
+        if (cmd === "underline") {
             setEditorState(RichUtils.toggleInlineStyle(state, "UNDERLINE"));
+            return "handled";
+        }
+
+        if (cmd === "add-link") {
+            addLink();
+            return "handled";
+        }
+
+        if (cmd === "remove-link") {
+            removeLink();
             return "handled";
         }
 
@@ -87,7 +162,7 @@ export default function DraftEditorClient({onChange}: {onChange: (value: string)
             return "handled";
         }
         return "not-handled";
-    }, []);
+    }, [addLink, removeLink]);
 
     const handleReturn = useCallback((e: React.KeyboardEvent, state: EditorState): "handled" | "not-handled" => {
         const sel = state.getSelection();
@@ -129,6 +204,27 @@ export default function DraftEditorClient({onChange}: {onChange: (value: string)
         setEditorState(RichUtils.onTab(e as any, editorState, 2));
     }, [editorState]);
 
+    const handlePastedText = useCallback((text: string, _html?: string, state?: EditorState) => {
+        if (!state) return "not-handled";
+        if (!isLikelyUrl(text)) return "not-handled";
+        
+        const url = normalizeUrl(text);
+        const current = state.getCurrentContent();
+        const withEntityContent = current.createEntity("LINK", "MUTABLE", { url });
+        const entityKey = withEntityContent.getLastCreatedEntityKey();
+        const withEntity = EditorState.set(state, { currentContent: withEntityContent });
+        const newContent = Modifier.replaceText(
+            withEntity.getCurrentContent(),
+            withEntity.getSelection(),
+            text,
+            state.getCurrentInlineStyle(),
+            entityKey
+        );
+
+        setEditorState(EditorState.push(withEntity, newContent, "insert-characters"));
+        return "handled";
+    }, []);
+
     return(
         <div>
             <div style={{display: "flex", alignItems: "center", gap:8, marginBottom: 8}}>
@@ -141,6 +237,9 @@ export default function DraftEditorClient({onChange}: {onChange: (value: string)
                         onToggle={() => toggleInline(s.style)}
                     />
                 ))}
+                <StyleButton label="Link" title="Add link (⌘/Ctrl+K)" active={false} onToggle={addLink} />
+                <StyleButton label="Unlink" title="Remove link (⌘/Ctrl+⇧+K)" active={false} onToggle={removeLink} />
+        
                 <span style={{width: 1, height: 20, background: "#ddd"}} />
                 {BLOCK_TYPES.map(b => (
                     <StyleButton

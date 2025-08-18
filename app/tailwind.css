@@ -24,3 +24,10 @@ body {
     @apply hidden;
   }
 }
+
+.blog-content a {
+  @apply bg-purple-950 text-white px-1 rounded;
+  color: #fff;
+  padding: 0 0.25rem;
+  border-radius: 0.25rem;
+}
