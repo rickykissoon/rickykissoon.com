@@ -125,17 +125,21 @@ export default function Index() {
 								{blogs && blogs.map((blog) => {
 									const elapsedMs = now - new Date(blog.createdAt).getTime();
 									const formatted = formatElapsedSubset(elapsedMs, ["days", "hours", "minutes", "seconds"]);
+									const shortFormat = formatElapsedSubset(elapsedMs, ["days"]);
 									const isTest = blog?.tags?.includes("test") || false;
 
 									return(
-										<div key={blog.id} className="flex gap-2">
-											<div className="text-[12px] tracking-tighter text-[#6e5e5d]">{formatted} | {isTest && '[TEST] | '}</div>
+										<div key={blog.id} className="flex flex-nowrap gap-2">
+											<div className="hidden sm:flex sm:flex-row text-[12px] tracking-tighter text-[#6e5e5d]">{formatted} | {isTest && <Experiment />}</div>
+											<div className="flex flex-row sm:hidden text-[12px] tracking-tighter text-[#6e5e5d]">{shortFormat} | {isTest && <Experiment />}</div>
 
-											{isProd && isTest ? (
-												<div className="underline text-ellipsis text-[#6e5e5d]">{blog.title}</div>
-											) : (
-												<Link to={`/blogs/${blog.slug}`} className="underline text-ellipsis">{blog.title}</Link>
-											)}
+											<div className="flex-1 min-w-0">
+												{isProd && isTest ? (
+													<div className="truncate underline text-[#6e5e5d]">{blog.title}</div>
+												) : (
+													<Link to={`/blogs/${blog.slug}`} className="block truncate underline">{blog.title}</Link>
+												)}
+											</div>
 										</div>
 									);
 								})}
@@ -156,13 +160,17 @@ export default function Index() {
 									{feed.map((f, i) => {
 										const elapsedMs = now - new Date(f.isoDate || "").getTime();
 										const formatted = formatElapsedSubset(elapsedMs, ["days", "hours", "minutes", "seconds"]);
+										const shortFormat = formatElapsedSubset(elapsedMs, ["days"]);
 										
 										return(
-											<div key={i} className="flex gap-2">
-												<div className="text-[12px] tracking-tighter text-[#6e5e5d]">{formatted} | [{f.feedTitle}] |</div>
-												<a href={f.link} target="_blank" rel="noreferrer" className="underline">
-                    								{f.title || f.link}
-                								</a>
+											<div key={i} className="flex flex-nowrap gap-2">
+												<div className="hidden sm:block text-[12px] tracking-tighter text-[#6e5e5d]">{formatted} | [{f.feedTitle}] |</div>
+												<div className="block sm:hidden text-[12px] tracking-tighter text-[#6e5e5d]">{shortFormat} | [{f.feedTitle}] |</div>
+												<div className="flex-1 min-w-0">
+													<a href={f.link} target="_blank" rel="noreferrer" className="block truncate underline">
+														{f.title || f.link}
+													</a>
+												</div>
 											</div>
 										);
 									})}
@@ -170,6 +178,24 @@ export default function Index() {
 							</div>
 						} 
                     />
+
+					<Post
+						icon={
+							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+								<path strokeLinecap="round" strokeLinejoin="round" d="M16.5 3.75V16.5L12 14.25 7.5 16.5V3.75m9 0H18A2.25 2.25 0 0 1 20.25 6v12A2.25 2.25 0 0 1 18 20.25H6A2.25 2.25 0 0 1 3.75 18V6A2.25 2.25 0 0 1 6 3.75h1.5m9 0h-9" />
+							</svg>
+						}
+						title={"Linkdrop"}
+						body={
+							<div className="flex flex-col text-xs">
+								<LinkDropItem
+									source="YouTube"
+									link="https://www.youtube.com/watch?v=fGKNUvivvnc"
+									label="Interpretability: Understanding how AI models think"
+								/>
+							</div>
+						}
+					/>
 
 					<R1Key userId={userId} />
 
@@ -250,6 +276,29 @@ function R1Key({userId}: {userId: string | undefined}) {
 					)}
 				</div>	
 				)}
+			</div>
+		</div>
+	);
+}
+
+export function Experiment() {
+	return(
+		<>
+			<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4 my-auto mx-1">
+				<path strokeLinecap="round" strokeLinejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
+			</svg> | 
+		</>
+	);
+}
+
+export function LinkDropItem({source, link, label}: {source: string, link: string, label: string}) {
+	return(
+		<div className="flex gap-2">
+			<div className="hidden sm:block text-[12px] tracking-tighter text-[#6e5e5d]">{source} |</div>
+			<div className="flex-1 min-w-0">
+				<Link to={link}>
+					<span className="ml-2 bg-purple-950 block truncate max-w-fit">{label}</span>
+				</Link>
 			</div>
 		</div>
 	);
