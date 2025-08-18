@@ -97,7 +97,7 @@ export default function Blog() {
 		<article className="flex flex-col">
 			<header className="">
                 <div className="flex flex-col bg-[#290701] border-[#480d02] border-[1px] text-[#ff4f30]">
-                    <h1 className="mx-2 text-[32px] md:text-[64px] my-auto">{blogPost.title}</h1>
+                    <h1 className="mx-2 text-[32px] md:text-[42px] my-auto">{blogPost.title}</h1>
                 </div>
                 <div className="flex justify-between my-3 text-xs border-[#480d02] pb-2 border-b-[1px]">
                     <div className="text-[#6e5e5d]">{blogPost.createdAt}</div>
