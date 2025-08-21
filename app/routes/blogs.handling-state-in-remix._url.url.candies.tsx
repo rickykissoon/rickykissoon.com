@@ -1,5 +1,6 @@
-import { useSearchParams } from "@remix-run/react";
-import { useEffect, useMemo } from "react";
+import { Link, useSearchParams } from "@remix-run/react";
+import { useMemo } from "react";
+import { Info } from "~/components/Post";
 
 export default function Candies() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -68,10 +69,6 @@ export default function Candies() {
         setParam(key, joined.length ? joined : null);
     };
 
-    useEffect(() => {
-        console.log('searchParams', searchParams);
-    }, [searchParams]);
-
     return(
         <div className="">
             <p>
@@ -81,9 +78,7 @@ export default function Candies() {
             <br></br>
             <p>
                 To illustrate this, heres a list of 100 candies from around the world. Both
-                pagination and filtering happens via url query params. Performing either action
-                causes the page to refresh, and by using remix functions we can perform the
-                filtering or pagination serverside.
+                pagination and filtering happens via url query params.
             </p>
 
             <div className="grid gap-4 items-start my-6">
@@ -152,9 +147,9 @@ export default function Candies() {
 
             <ul className="space-y-3">
                 {pageItems.map((candy) => (
-                    <li key={candy.name} className="border rounded-xl p-4 shadow-sm">
+                    <li key={candy.name} className="border border-[#8d1a74] bg-[#0f020b] rounded-xl p-4 shadow-sm">
                         <div className="flex flex-wrap items-center justify-between gap-2">
-                            <h2 className="text-lg font-semibold">{candy.name}</h2>
+                            <h2 className="text-lg font-semibold text-[#c21f9e]">{candy.name}</h2>
                             <span className="text-sm opacity-70">{candy.country}</span>
                         </div>
                         <p className="text-sm mt-1">{candy.description}</p>
@@ -164,7 +159,7 @@ export default function Candies() {
                                     onClick={() => toggleMultiValue("type", t)}
                                     className={
                                         "text-xs border rounded px-2 py-1 " +
-                                        (selectedTypes.includes(t) ? "bg-black text-white" : "")
+                                        (selectedTypes.includes(t) ? "bg-[#290701] border-[#480d02] text-[#ff4f30]" : "")
                                     }
                                 >{t}</button>
                             ))}
@@ -186,6 +181,27 @@ export default function Candies() {
                     disabled={clampedPage >= totalPages}
                     onClick={() => goToPage(clampedPage + 1)}
                 >Next</button>
+            </div>
+
+            <div className="my-6">
+              <Info title="How Remix Handles Query Updates"
+                body={
+                  <>
+                    <p>In Remix, changing the query string is a client side navigation, not a full page reload. On query changes, Remix:</p>
+                    <br></br>
+                    <ul className="list-disc ml-3">
+                      <li>Updates browser history</li>
+                      <li>Resets scroll behavior by default</li>
+                      <li>Revalidates loaders {'(more on this in the loader section)'}</li>
+                    </ul>
+                  </>
+                }
+              />
+            </div>
+
+            <div className="flex items-center gap-3 justify-between mt-6">
+                <Link to="/blogs/handling-state-in-remix" preventScrollReset>Back To All State Methods</Link>
+                <Link to="/blogs/handling-state-in-remix/loader/loader-state" preventScrollReset>2. loader{'()'}</Link>
             </div>
 
         </div>

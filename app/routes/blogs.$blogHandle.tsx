@@ -75,6 +75,8 @@ interface BlogPost {
 export default function Blog() {
     const blogPost = useLoaderData<BlogPost>();
 
+    console.log(blogPost);
+
     useEffect(() => {
         (async () => {
             const hljs = (await import("highlight.js/lib/core")).default;

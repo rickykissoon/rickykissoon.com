@@ -15,12 +15,6 @@ export default function URLInState() {
                 some complicated state system to give the user that feature.
             </p>
             <br></br>
-            <p>
-                Changing paths appear to be full page loads, but due to the way remix handles loading content its not exactly. Remix
-                can determine what content changes, in this case, only the content in the <span className="text-teal-500">{'<Outlet />'}</span>.
-                Only this content gets updated, the rest of the page, including the header and the footer does&apos;nt get rehydrated.
-            </p>
-            <br></br>
             <Link to="/blogs/handling-state-in-remix/url/candies" preventScrollReset>Query Params</Link>
         </div>
     );

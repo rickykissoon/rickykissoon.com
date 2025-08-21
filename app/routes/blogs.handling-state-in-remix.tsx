@@ -80,16 +80,23 @@ interface BlogPost {
 
 export default function Blog() {
     const blogPost = useLoaderData<BlogPost>();
-    // const [, setParams] = useSearchParams();
 
     useEffect(() => {
         (async () => {
             const hljs = (await import("highlight.js/lib/core")).default;
             const javascript = (await import("highlight.js/lib/languages/javascript")).default;
             const typescript = (await import("highlight.js/lib/languages/typescript")).default;
-            const bash = (await import("highlight.js/lib/languages/bash")).default; // example extra
+            const xml = (await import("highlight.js/lib/languages/xml")).default;
+            const json = (await import("highlight.js/lib/languages/json")).default;
+            const css = (await import("highlight.js/lib/languages/css")).default;
+            const diff = (await import("highlight.js/lib/languages/diff")).default;
+            const bash = (await import("highlight.js/lib/languages/bash")).default;
             hljs.registerLanguage("javascript", javascript);
             hljs.registerLanguage("typescript", typescript);
+            hljs.registerLanguage("xml", xml);
+            hljs.registerLanguage("json", json);
+            hljs.registerLanguage("css", css);
+            hljs.registerLanguage("diff", diff);
             hljs.registerLanguage("bash", bash);
   
             document.querySelectorAll('pre code:not([class*="language-"])')
@@ -135,46 +142,48 @@ export default function Blog() {
                 </p>
                 <br></br>
                 <table className="w-full text-[12px]">
-                    <tr>
-                        <td className="pl-2 border">URL State</td>
-                        <td className="pl-2 border">path and query params</td>
-                    </tr>
-                    <tr>
-                        <td className="pl-2 border">loader{'()'}</td>
-                        <td className="pl-2 border">HTTP Request Response, URL routing, SSR HTML</td>
-                    </tr>
-                    <tr>
-                        <td className="pl-2 border">action{'()'}</td>
-                        <td className="pl-2 border">HTML Forms, Form Data</td>
-                    </tr>
-                    <tr>
-                        <td className="pl-2 border">Persistent State</td>
-                        <td className="pl-2 border">HTTP Cookies, LocalStorage</td>
-                    </tr>
-                    <tr>
-                        <td className="pl-2 border">useFetcher{'()'}</td>
-                        <td className="pl-2 border">Fetch API, FormData, background requests</td>
-                    </tr>
-                    <tr>
-                        <td className="pl-2 border">useNavigation{'()'}</td>
-                        <td className="pl-2 border">browser navigation lifecycle</td>
-                    </tr>
-                    <tr>
-                        <td className="pl-2 border">Local UI State</td>
-                        <td className="pl-2 border">useState{'()'}, useReducer{'()'}</td>
-                    </tr>
-                    <tr>
-                        <td className="pl-2 border">Global State</td>
-                        <td className="pl-2 border">context API</td>
-                    </tr>
-                    <tr>
-                        <td className="pl-2 border">defer{'()'}</td>
-                        <td className="pl-2 border">HTTP streaming</td>
-                    </tr>
-                    <tr>
-                        <td className="pl-2 border">Caching</td>
-                        <td className="pl-2 border">Cache-Control</td>
-                    </tr>
+                    <tbody>
+                        <tr>
+                            <td className="pl-2 border">URL State</td>
+                            <td className="pl-2 border">path and query params</td>
+                        </tr>
+                        <tr>
+                            <td className="pl-2 border">loader{'()'}</td>
+                            <td className="pl-2 border">HTTP Request Response, URL routing, SSR HTML</td>
+                        </tr>
+                        <tr>
+                            <td className="pl-2 border">action{'()'}</td>
+                            <td className="pl-2 border">HTML Forms, Form Data</td>
+                        </tr>
+                        <tr>
+                            <td className="pl-2 border">Persistent State</td>
+                            <td className="pl-2 border">HTTP Cookies, LocalStorage</td>
+                        </tr>
+                        <tr>
+                            <td className="pl-2 border">useFetcher{'()'}</td>
+                            <td className="pl-2 border">Fetch API, FormData, background requests</td>
+                        </tr>
+                        <tr>
+                            <td className="pl-2 border">useNavigation{'()'}</td>
+                            <td className="pl-2 border">browser navigation lifecycle</td>
+                        </tr>
+                        <tr>
+                            <td className="pl-2 border">Local UI State</td>
+                            <td className="pl-2 border">useState{'()'}, useReducer{'()'}</td>
+                        </tr>
+                        <tr>
+                            <td className="pl-2 border">Global State</td>
+                            <td className="pl-2 border">context API</td>
+                        </tr>
+                        <tr>
+                            <td className="pl-2 border">defer{'()'}</td>
+                            <td className="pl-2 border">HTTP streaming</td>
+                        </tr>
+                        <tr>
+                            <td className="pl-2 border">Caching</td>
+                            <td className="pl-2 border">Cache-Control</td>
+                        </tr>
+                    </tbody>
                 </table>
             </section>
             <section className="blog-content text-base mt-14">
