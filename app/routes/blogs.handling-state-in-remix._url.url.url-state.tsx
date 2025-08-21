@@ -21,7 +21,7 @@ export default function URLInState() {
                 Only this content gets updated, the rest of the page, including the header and the footer does&apos;nt get rehydrated.
             </p>
             <br></br>
-            <Link to="/blogs/handling-state-in-remix/candies" preventScrollReset>Query Params</Link>
+            <Link to="/blogs/handling-state-in-remix/url/candies" preventScrollReset>Query Params</Link>
         </div>
     );
 }

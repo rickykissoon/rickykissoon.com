@@ -127,11 +127,11 @@ export default function Blog() {
                 <br></br>
                 <p>
                     This web fundamentals paradigm becomes more apparent when you look at how state is handled in Remix. If we prioritize web fundamentals first, then what Remix does by
-                    default second, we can get a sort of order of operations for using state in Remix, which is platform first, then server, then client.
+                    default second, we can get a sort of order of operations for using state in Remix, which is, platform first, then server, then client.
                 </p>
                 <br></br>
                 <p>
-                    The following is a rough list of the various methods we can employ to handle state in descending order. On the left is the method, and the right how we can accomplish it.
+                    The following is a rough list of the various methods we can employ to handle state in descending order. On the left is the method, and on the right, how we can accomplish it.
                 </p>
                 <br></br>
                 <table className="w-full text-[12px]">

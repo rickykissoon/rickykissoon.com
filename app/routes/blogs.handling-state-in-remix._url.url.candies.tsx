@@ -87,7 +87,7 @@ export default function Candies() {
             </p>
 
             <div className="grid gap-4 items-start my-6">
-                <div className="border rounded px-3 py-2 text-center">CANDY FILE</div>
+                <div className="border rounded px-3 py-2 text-center mx-auto">CANDY FILE</div>
                 <div className="md:col-span-2">
                     <div className="flex items-center justify-between mb-2">
                         <span className="block text-sm font-semibold">Types</span>
@@ -114,7 +114,7 @@ export default function Candies() {
 
             <div className="mb-4">
                 <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-semibold">Country chips</span>
+                    <span className="text-sm font-semibold">Countries</span>
                     <button type="button" className="text-xs underline"
                         onClick={() => setParam("country", null)}
                     >Clear Countries</button>
@@ -133,6 +133,21 @@ export default function Candies() {
                         );
                     })}
                 </div>
+            </div>
+
+            <div className="flex items-center gap-3 justify-between my-6">
+                <button className="border rounded px-3 py-2 disabled:opacity-50"
+                    disabled={clampedPage <= 1}
+                    onClick={() => goToPage(clampedPage - 1)}
+                >Previous</button>
+                <div className="text-sm">
+                    Page {clampedPage} / {totalPages} • {filtered.length} result
+                    {filtered.length === 1 ? "" : "s"}
+                </div>
+                <button className="border rounded px-3 py-2 disabled:opacity-50"
+                    disabled={clampedPage >= totalPages}
+                    onClick={() => goToPage(clampedPage + 1)}
+                >Next</button>
             </div>
 
             <ul className="space-y-3">
@@ -164,7 +179,7 @@ export default function Candies() {
                     onClick={() => goToPage(clampedPage - 1)}
                 >Previous</button>
                 <div className="text-sm">
-                    Page {clampedPage} / {totalPages} - {filtered.length} result
+                    Page {clampedPage} / {totalPages} • {filtered.length} result
                     {filtered.length === 1 ? "" : "s"}
                 </div>
                 <button className="border rounded px-3 py-2 disabled:opacity-50"
