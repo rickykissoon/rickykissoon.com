@@ -1,6 +1,6 @@
 import { LoaderFunction, MetaFunction } from "@remix-run/node";
-import { Outlet, useLoaderData } from "@remix-run/react";
-import { useEffect } from "react";
+import { Outlet, useLoaderData, useLocation } from "@remix-run/react";
+import { useEffect, useRef, useState } from "react";
 import "highlight.js/styles/github-dark.css";
 
 export const loader: LoaderFunction = async () => {
@@ -80,32 +80,53 @@ interface BlogPost {
 
 export default function Blog() {
     const blogPost = useLoaderData<BlogPost>();
+    const location = useLocation();
+    const containerRef = useRef<HTMLDivElement | null>(null);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const hljsRef = useRef<any>(null);
+    const [hljsReady, setHljsReady] = useState(false);
 
     useEffect(() => {
+        let cancelled = false;
         (async () => {
             const hljs = (await import("highlight.js/lib/core")).default;
-            const javascript = (await import("highlight.js/lib/languages/javascript")).default;
-            const typescript = (await import("highlight.js/lib/languages/typescript")).default;
-            const xml = (await import("highlight.js/lib/languages/xml")).default;
-            const json = (await import("highlight.js/lib/languages/json")).default;
-            const css = (await import("highlight.js/lib/languages/css")).default;
-            const diff = (await import("highlight.js/lib/languages/diff")).default;
-            const bash = (await import("highlight.js/lib/languages/bash")).default;
-            hljs.registerLanguage("javascript", javascript);
-            hljs.registerLanguage("typescript", typescript);
+            const [js, ts, xml] = await Promise.all([
+                import("highlight.js/lib/languages/javascript").then(m => m.default),
+                import("highlight.js/lib/languages/typescript").then(m => m.default),
+                import("highlight.js/lib/languages/xml").then(m => m.default), // HTML/JSX
+            ]);
+            hljs.registerLanguage("javascript", js);
+            hljs.registerLanguage("typescript", ts);
             hljs.registerLanguage("xml", xml);
-            hljs.registerLanguage("json", json);
-            hljs.registerLanguage("css", css);
-            hljs.registerLanguage("diff", diff);
-            hljs.registerLanguage("bash", bash);
-  
-            document.querySelectorAll('pre code:not([class*="language-"])')
-                .forEach((el) => el.classList.add("language-javascript"));
-  
-            document.querySelectorAll<HTMLElement>("article pre code")
-                .forEach((block) => hljs.highlightElement(block));
+            if (cancelled) return;
+            hljsRef.current = hljs;
+            setHljsReady(true);
         })();
+    
+        return () => { cancelled = true; };
     }, []);
+
+    const highlightAll = () => {
+        const root = containerRef.current ?? document;
+        const hljs = hljsRef.current;
+        if (!hljs) return;
+        
+        root.querySelectorAll<HTMLElement>("pre code").forEach((el) => {
+            if (el.classList.contains("hljs")) return; // already highlighted
+            if (!/\blanguage-/.test(el.className)) el.classList.add("language-typescript");
+            hljs.highlightElement(el);
+        });
+    };
+
+    useEffect(() => {
+        if (!hljsReady) return;
+        requestAnimationFrame(highlightAll);
+    }, [hljsReady]);
+
+    useEffect(() => {
+        if (!hljsReady) return;
+        requestAnimationFrame(() => requestAnimationFrame(highlightAll));
+    }, [location.key, hljsReady]);
 
     return(
 		<article className="flex flex-col">

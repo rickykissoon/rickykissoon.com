@@ -6,7 +6,7 @@ dotenv.config();
 let db: Db;
 
 declare global {
-    var __db: Db | undefined;
+    let __db: Db | undefined;
 }
 
 const MONGO_URI = process.env.MONGO_URI;
