@@ -13,12 +13,9 @@ const client = new MongoClient(uri);
 try {
   await client.connect();
   const db = client.db(); // or client.db(process.env.MONGO_DB)
-  const col = db.collection("temporary_object");
+  const col = db.collection("expiring_object");
 
-  await col.createIndex(
-    { updatedAt: 1 },
-    { expireAfterSeconds: 60 * 60 * 24 * 7, name: "ttl_updatedAt_7d" }
-  );
+  await col.createIndex({ expireAt: 1 }, { expireAfterSeconds: 0, name: "ttl_expireAt" });
 
   console.log("Indexes ensured.");
   process.exit(0);
