@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import { commitSession, getOrCreateSession } from "~/sessions";
 import { getDb } from "~/utils/db.server";
 
-
 export async function loader({ request }: LoaderFunctionArgs) {
     const { session, userId } = await getOrCreateSession(request);
     const db = await getDb();
@@ -34,24 +33,30 @@ type LoaderData = {
     wash: WashDoc | null;
 };
 
+const bad = (data: any, status = 400) => Response.json({ ok: false, ...data }, { status });
+
 export async function action({ request }: ActionFunctionArgs) {
     const { session, userId } = await getOrCreateSession(request);
     const form = await request.formData();
     const intent = String(form.get("_intent") || "");
-
     const db = await getDb();
     const col = db.collection("expiring_object");
     const now = new Date();
 
     if (intent === "BOOK_TIME") {
-        const ttlSeconds = Number(form.get("ttl") ?? 600);
         const day = form.get("day")?.toString();
         const time = form.get("time")?.toString();
-        if (!day || !time) {
-            return Response.json({ error: "Pick a day and time"}, {status: 400});
+
+        const errors = {
+            day: day? undefined : "Pick a day",
+            time: time ? undefined : "Pick a time",
+        };
+
+        if (errors.day || errors.time) {
+            return bad({ intent, errors });
         }
 
-        const expireAt = new Date(now.getTime() + ttlSeconds * 1000);
+        const expireAt = new Date(now.getTime() + HOLD_TIME * 1000);
         const res = await col.findOneAndUpdate(
             { userId },
             {
@@ -62,7 +67,7 @@ export async function action({ request }: ActionFunctionArgs) {
         );
 
         return Response.json(
-            { ok: true, step: 2, doc: res, expireAt },
+            { ok: true, intent, step: 2, doc: res, expireAt },
             {
                 headers: { "Set-Cookie": await commitSession(session) },
                 status: res?.lastErrorObject?.upserted ? 201 : 200
@@ -71,74 +76,64 @@ export async function action({ request }: ActionFunctionArgs) {
     }
 
     if (intent === "SELECT_OPTIONS") {
-        const ttlSeconds = Number(form.get("ttl") ?? 600);
-        const expireAt = new Date(now.getTime() + ttlSeconds * 1000);
-        const pkg = form.get("package")?.toString();
+        const pkgRaw = form.get("package")?.toString() ?? "";
         const vehicle = form.get("vehicle")?.toString();
         const upsells = form.getAll("upsells").map(String);
 
-        if (!pkg || !vehicle) {
-            return Response.json({ error: "Choose a package and vehicle type" }, { status: 400 });
+        const pkg = pkgRaw as keyof typeof WashPackage;
+
+        const errors = {
+            pkg: pkg ? undefined : "Choose a package",
+            vehicle: vehicle ? undefined : "Choose a vehicle type"
+        };
+
+        if (errors.pkg || errors.vehicle) {
+            return bad({ intent, errors });
         }
 
+        const expireAt = new Date(now.getTime() + HOLD_TIME * 1000);
         const res = await col.findOneAndUpdate(
             { userId, expireAt: { $gt: now } },
-            {
-                $set: {
-                    expireAt,
-                    updatedAt: now,
-                    selection: { pkg, vehicle, upsells },
-                },
-            },
-            {
-                returnDocument: "after"
-            }
+            { $set: { expireAt, updatedAt: now, selection: { pkg, vehicle, upsells } } },
+            { returnDocument: "after" }
         );
 
         if (!res) {
-            return Response.json({ error: "Hold expired; please pick a time slot again."}, { status: 409 });
+            return bad({ intent, errors: { form: "Hold expired; please pick a time slot again." } }, 409);
         }
 
         return Response.json(
-            { ok: true, step: 3, doc: res, expireAt },
+            { ok: true, intent, step: 3, doc: res, expireAt },
             { headers: { "Set-Cookie": await commitSession(session) } }
         );
     }
 
     if (intent === "PAYMENT") {
-        const expireAt = new Date(now.getTime() + (60 * 60 * 24 * 7) * 1000);
+        const current = await col.findOne({ userId, expireAt: { $gt: now } });
+        if (!current?.selection) {
+            return bad({ intent, errors: { form: "Missing selection or hold expired. Please start again." } }, 409);
+        }
 
+        const expireAt = new Date(now.getTime() + (60 * 60 * 24 * 7) * 1000);
         const res = await col.findOneAndUpdate(
             { userId, expireAt: { $gt: now } },
-            {
-                $set: {
-                    expireAt,
-                    updatedAt: now,
-                    paid: true,
-                },
-            },
-            {
-                returnDocument: "after"
-            }
+            { $set: { expireAt, updatedAt: now, paid: true } },
+            { returnDocument: "after" }
         );
 
         return Response.json(
-            { ok: true, step: 3, doc: res, expireAt },
+            { ok: true, intent, step: 4, doc: res, expireAt },
             { headers: { "Set-Cookie": await commitSession(session) } }
         );
     }
 
-    return Response.json({ error: "Unknown action" }, { status: 400 });
+    return bad({ intent, errors: { form: "Unknown action" } }, 400);
 }
 
 export default function ActionState() {
     const data = useLoaderData<LoaderData>();
     const navigation = useNavigation();
     const isSubmitting = navigation.state === "submitting";
-
-    useEffect(() => {
-        console.log(data);
-    }, [data]);
 
     return(
         <div className="">
@@ -148,7 +143,25 @@ export default function ActionState() {
             </p>
             <br></br>
             <p>
-                Lets walk through this process below with a simple example project. starting with the loader:
+                Lets walk through this process below with an example project. We're going to build a car wash
+                booking system. There will be 4 steps: 
+            </p>
+            <br></br>
+            <p className="ml-6">
+                1. Scheduling a day and time which will incur a temporary hold.
+            </p>
+            <br></br>
+            <p className="ml-6">
+                2. Options selections. If the user doesn't submit before the hold ends they go back to step 1.
+            </p>
+            <br></br>
+            <p className="ml-6">
+                3. A breakdown of the users selections and a book now button. Booking will end the hold and make
+                the selections permanent.
+            </p>
+            <br></br>
+            <p className="ml-6">
+                4. Final confirmation.
             </p>
             <br></br>
             <p>
@@ -252,24 +265,94 @@ export default function ActionState() {
     );
 }
 
+function ErrorBanner({ message }: { message?: string }) {
+    if (!message) return null;
+    return (
+        <div className="mb-3 rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+            {message}
+        </div>
+    );
+}
+
 export function ConfirmPayment() {
     const {wash} = useLoaderData<LoaderData>();
+    const a = useActionData<{ ok?: boolean; intent?: string; errors?: { form?: string } }>();
+    const isStep = a?.intent === "PAYMENT";
+    const e = isStep ? a?.errors : undefined;
     
     if (!wash || !wash?.selection) return null;
+
+    const usd = (n: number) => `$${n.toFixed(2)}`;
+    const TAX_RATE = 0.06;
+    const pkgKey = wash.selection.pkg as keyof typeof WashPackage;
+    const base = WashPackage[pkgKey];
+    const upsells = (wash.selection.upsells ?? []).filter(
+        (k): k is keyof typeof UPSELLS => k in UPSELLS
+    );
+    const upsellLines = upsells.map((k) => ({ label: UPSELLS[k].label, amount: UPSELLS[k].price }));
+    const lines = [{ label: `${pkgKey ?? ""} package`, amount: base?.price ?? 0 }, ...upsellLines];
+    const subtotal = lines.reduce((sum, l) => sum + l.amount, 0);
+    const tax = Number((subtotal * TAX_RATE).toFixed(2));
+    const total = subtotal + tax;
 
     return(
         <div className="flex flex-col">
             <div>Time slot reserved until: {IsoToHuman(wash.expireAt)}</div>
 
-            <div className="flex flex-col">
-                <div>{wash.day} {wash.time}</div>
-                <div>Package: {wash?.selection?.pkg}</div>
-                <div>Vehicle: {wash?.selection?.vehicle}</div>
-                {wash?.selection?.upsells?.length > 0 && wash.selection?.upsells.map((upsell, index) => (
-                    <div key={index}>+{UPSELLS[upsell].label}</div>
-                ))} 
-            </div>
-            <div>Total: $</div>
+            {isStep && <ErrorBanner message={e?.form} />}
+            
+            <section className="mt-4 rounded border border-[#2BA2E3]/40 bg-white shadow-sm">
+                <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
+                    <h2 className="text-sm font-semibold">Booking Summary</h2>
+                    <span className="rounded bg-[#2BA2E3]/10 px-2 py-0.5 text-xs font-medium text-[#2BA2E3]">
+                        Review & Pay
+                    </span>
+                </div>
+
+                <div className="grid gap-1 px-4 py-3 text-sm">
+                    <div className="text-gray-600">
+                        <span className="font-medium text-gray-900">When:</span>{" "}
+                        {wash.day} {wash.time}
+                    </div>
+                    <div className="text-gray-600">
+                        <span className="font-medium text-gray-900">Vehicle:</span>{" "}
+                        {wash.selection.vehicle}
+                    </div>
+                </div>
+
+                <div className="px-4 pb-2">
+                    <dl className="divide-y divide-gray-200 text-sm">
+                        {lines.map((l, i) => (
+                            <div key={i} className="flex items-center justify-between py-2">
+                                <dt className="text-gray-700">{l.label}</dt>
+                                <dd className="tabular-nums">{usd(l.amount)}</dd>
+                            </div>
+                        ))}
+                        {upsells.length === 0 && (
+                            <div className="flex items-center justify-between py-2 text-gray-500">
+                                <dt>No add-ons</dt>
+                                <dd>-</dd>
+                            </div>
+                        )}
+
+                        <div className="flex items-center justify-between py-2">
+                            <dt className="text-gray-700">Subtotal</dt>
+                            <dd className="tabular-nums">{usd(subtotal)}</dd>
+                        </div>
+                        <div className="flex items-center justify-between py-2">
+                            <dt className="text-gray-700">
+                                Tax <span className="text-xs text-gray-500">(rate {TAX_RATE * 100}%)</span>
+                            </dt>
+                            <dd className="tabular-nums">{usd(tax)}</dd>
+                        </div>
+
+                        <div className="flex items-center justify-between py-3">
+                            <dt className="text-base font-semibold">Total</dt>
+                            <dd className="tabular-nums text-base font-semibold">{usd(total)}</dd>
+                        </div>
+                    </dl>
+                </div>
+            </section>
 
             <div className="flex items-center justify-end gap-3">
                 <button type="submit" name="_intent" value="PAYMENT" className="rounded border bg-black px-4 py-2 text-white hover:opacity-90">Book Slot</button>
@@ -280,6 +363,13 @@ export function ConfirmPayment() {
 
 export function WashOptions() {
     const {wash} = useLoaderData<LoaderData>();
+    const a = useActionData<{
+        ok?: Boolean;
+        intent?: string;
+        errors?: { pkg?: string; vehicle?: string; form?: string };
+    }>();
+    const isStep = a?.intent === "SELECT_OPTIONS";
+    const e = isStep ? a?.errors : undefined;
 
     if (!wash) return null;
 
@@ -287,17 +377,19 @@ export function WashOptions() {
         <div className="flex flex-col">
             <div>Time slot reserved until: {IsoToHuman(wash.expireAt)}</div>
 
+            {isStep && <ErrorBanner message={e?.form} />}
+
             <div className="flex flex-col gap-3 my-5">
                 <fieldset className="space-y-2">
                     <legend className="text-sm font-semibold">Package</legend>
                     <div className="flex flex-wrap gap-2">
-                        {Object.entries(WashPackage).map(([w, k]) => (
-                            <div key={w} className="">
-                                <input id={w} type="radio" name="package"
-                                    value={k.label} required className="peer sr-only"
+                        {Object.entries(WashPackage).map(([key, k]) => (
+                            <div key={key} className="">
+                                <input id={`pkg-${key}`} type="radio" name="package"
+                                    value={key} required className="peer sr-only"
                                 />
                                 <label
-                                    htmlFor={w}
+                                    htmlFor={`pkg-${key}`}
                                     title={k.label}
                                     className="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded border px-3 py-2 text-sm transition
                                         hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black
@@ -309,6 +401,7 @@ export function WashOptions() {
                             </div>
                         ))}
                     </div>
+                    {e?.pkg && <p id="error-pkg" className="text-xs rext-red-600">{e.pkg}</p>}
                 </fieldset>
 
                 <fieldset className="space-y-2">
@@ -331,6 +424,7 @@ export function WashOptions() {
                             </div>
                         ))}
                     </div>
+                    {e?.vehicle && <p id="error-pkg" className="text-xs rext-red-600">{e.vehicle}</p>}
                 </fieldset>
 
                 <fieldset className="space-y-2">
@@ -383,6 +477,14 @@ export function BookTimeSlot() {
         return { dateISO, dowShort, label: `${dowShort} ${monthShort} ${dd}` };
     });
 
+    const a = useActionData<{
+        ok?: boolean;
+        intent?: string;
+        errors?: { day?: string; time?: string; form?: string };
+    }>();
+    const isStep = a?.intent === "BOOK_TIME";
+    const e = isStep ? a?.errors : undefined;
+
     const slots = Array.from({ length: 8 }).map((_, i) => {
         const hour = 9 + i;
         const dt = new Date(2000, 0, 1, hour, 0, 0);
@@ -400,6 +502,8 @@ export function BookTimeSlot() {
         <div className="flex flex-col">
             <h1>Book your wash time.</h1>
             <p>Choose a time slot between 9:00AM and 5:00PM.</p>
+
+            {isStep && <ErrorBanner message={e?.form} />}
 
             <div className="flex flex-col gap-3 my-5">
                 <fieldset className="space-y-2">
@@ -430,6 +534,7 @@ export function BookTimeSlot() {
                             );
                         })}
                     </div>
+                    {e?.day && <p id="error-day" className="text-xs text-red-600">{e.day}</p>}
                 </fieldset>
 
                 <fieldset className="space-y-2">
@@ -460,6 +565,7 @@ export function BookTimeSlot() {
                             );
                         })}
                     </div>
+                    {e?.time && <p id="error-day" className="text-xs text-red-600">{e.day}</p>}
                 </fieldset>
 
                 <div className="flex items-center justify-end gap-3">
@@ -636,6 +742,8 @@ function ActionSnippet() {
         </code></pre>
     );
 }
+
+const HOLD_TIME = 600;
 
 type Step = 1 | 2 | 3 | 4;
 
