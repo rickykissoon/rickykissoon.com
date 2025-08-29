@@ -138,7 +138,7 @@ export default function ActionState() {
     return(
         <div className="">
             <p>
-                Actions allow you to perform mutations, after the action runs, the loader is revalidated,
+                Actions allow you to perform mutations. After the action runs, the loader is revalidated,
                 and the UI is updated to reflect the updates without having to manage state manually.
             </p>
             <br></br>
@@ -148,25 +148,26 @@ export default function ActionState() {
             </p>
             <br></br>
             <p className="ml-6">
-                1. Scheduling a day and time which will incur a temporary hold.
+                1. Scheduling a day and time.
             </p>
             <br></br>
             <p className="ml-6">
-                2. Options selections. If the user doesn't submit before the hold ends they go back to step 1.
+                2. Options selections (package type, vehicle type, upsells).
             </p>
             <br></br>
             <p className="ml-6">
-                3. A breakdown of the users selections and a book now button. Booking will end the hold and make
-                the selections permanent.
+                3. A breakdown of the users selections and a book now button to similate a purchase.
             </p>
             <br></br>
             <p className="ml-6">
-                4. Final confirmation.
+                4. Confirmation.
             </p>
             <br></br>
             <p>
                 When the user lands on the page, the loader runs. In this case we are going to query the
-                database for 
+                database for any existing car_wash_bookings using the user_id stored in the session. If no object
+                is returned then the user starts off at step 1, otherwise we use the object to determine the step
+                the user is on.
             </p>
             <br></br>
             <LoaderSnippet />
@@ -207,7 +208,7 @@ export default function ActionState() {
             </div>
 
             {data.step === 4 ? (
-                <div>Booked & Paid</div>
+                <BookedAndPaid />
             ) : (
                 <Form method="POST" className="mt-3 space-y-3">
                     {data.step === 1 && (
@@ -221,39 +222,6 @@ export default function ActionState() {
                     {data.step === 3 && (
                         <ConfirmPayment />
                     )}
-
-                    <div>
-                        <label className="block text-sm font-medium">TTL (seconds)</label>
-                        <input
-                            name="ttl"
-                            type="number"
-                            min={1}
-                            defaultValue={600}
-                            className="mt-1 w-full rounded border px-3 py-2"
-                            required
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium">
-                            Date (JSON object, optional)
-                        </label>
-                        <textarea
-                            name="data"
-                            rows={6}
-                            placeholder='{"note": "hello", "cartId": "abc123"}'
-                            className="mt-1 w-full rounded border px-3 py-2 font-mono text-sm"
-                        />
-                        <p className="mt-1 text-xs text-gray-500">
-                            Leave empty to only bump the expiration
-                        </p>
-                    </div>
-
-                    <button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className="rounded bg-black border px-4 py-2 text-white disabled:opacity-60"
-                    >{isSubmitting ? "Saving..." : "Save / Refresh" }</button>
                 </Form>
             )}
             
@@ -272,6 +240,19 @@ function ErrorBanner({ message }: { message?: string }) {
             {message}
         </div>
     );
+}
+
+export function BookedAndPaid() {
+    const {wash} = useLoaderData<LoaderData>();
+
+    return(
+        <div className="flex flex-col">
+            <h1>Booked & Paid!</h1>
+            <p>We will see you on {wash?.day} at {wash?.time}.</p>
+            
+            
+        </div>
+    )
 }
 
 export function ConfirmPayment() {
@@ -301,7 +282,7 @@ export function ConfirmPayment() {
 
             {isStep && <ErrorBanner message={e?.form} />}
             
-            <section className="mt-4 rounded border border-[#2BA2E3]/40 bg-white shadow-sm">
+            <section className="mt-4 rounded border border-[#2BA2E3]/70 shadow-sm">
                 <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
                     <h2 className="text-sm font-semibold">Booking Summary</h2>
                     <span className="rounded bg-[#2BA2E3]/10 px-2 py-0.5 text-xs font-medium text-[#2BA2E3]">
@@ -310,12 +291,12 @@ export function ConfirmPayment() {
                 </div>
 
                 <div className="grid gap-1 px-4 py-3 text-sm">
-                    <div className="text-gray-600">
-                        <span className="font-medium text-gray-900">When:</span>{" "}
+                    <div className="text-gray-400">
+                        <span className="font-medium text-gray-500">When:</span>{" "}
                         {wash.day} {wash.time}
                     </div>
-                    <div className="text-gray-600">
-                        <span className="font-medium text-gray-900">Vehicle:</span>{" "}
+                    <div className="text-gray-400">
+                        <span className="font-medium text-gray-500">Vehicle:</span>{" "}
                         {wash.selection.vehicle}
                     </div>
                 </div>
@@ -324,24 +305,24 @@ export function ConfirmPayment() {
                     <dl className="divide-y divide-gray-200 text-sm">
                         {lines.map((l, i) => (
                             <div key={i} className="flex items-center justify-between py-2">
-                                <dt className="text-gray-700">{l.label}</dt>
+                                <dt className="text-gray-200">{l.label}</dt>
                                 <dd className="tabular-nums">{usd(l.amount)}</dd>
                             </div>
                         ))}
                         {upsells.length === 0 && (
-                            <div className="flex items-center justify-between py-2 text-gray-500">
+                            <div className="flex items-center justify-between py-2 text-gray-200">
                                 <dt>No add-ons</dt>
                                 <dd>-</dd>
                             </div>
                         )}
 
                         <div className="flex items-center justify-between py-2">
-                            <dt className="text-gray-700">Subtotal</dt>
+                            <dt className="text-gray-300">Subtotal</dt>
                             <dd className="tabular-nums">{usd(subtotal)}</dd>
                         </div>
                         <div className="flex items-center justify-between py-2">
-                            <dt className="text-gray-700">
-                                Tax <span className="text-xs text-gray-500">(rate {TAX_RATE * 100}%)</span>
+                            <dt className="text-gray-300">
+                                Tax <span className="text-xs text-gray-200">(rate {TAX_RATE * 100}%)</span>
                             </dt>
                             <dd className="tabular-nums">{usd(tax)}</dd>
                         </div>
@@ -354,7 +335,7 @@ export function ConfirmPayment() {
                 </div>
             </section>
 
-            <div className="flex items-center justify-end gap-3">
+            <div className="flex items-center mt-4 justify-end gap-3">
                 <button type="submit" name="_intent" value="PAYMENT" className="rounded border bg-black px-4 py-2 text-white hover:opacity-90">Book Slot</button>
             </div>
         </div>
@@ -477,16 +458,8 @@ export function BookTimeSlot() {
         return { dateISO, dowShort, label: `${dowShort} ${monthShort} ${dd}` };
     });
 
-    const a = useActionData<{
-        ok?: boolean;
-        intent?: string;
-        errors?: { day?: string; time?: string; form?: string };
-    }>();
-    const isStep = a?.intent === "BOOK_TIME";
-    const e = isStep ? a?.errors : undefined;
-
-    const slots = Array.from({ length: 8 }).map((_, i) => {
-        const hour = 9 + i;
+    const slots = Array.from({ length: 12 }).map((_, i) => {
+        const hour = 8 + i;
         const dt = new Date(2000, 0, 1, hour, 0, 0);
         const label = new Intl.DateTimeFormat("en-US", {
             hour: "numeric",
@@ -501,9 +474,7 @@ export function BookTimeSlot() {
     return(
         <div className="flex flex-col">
             <h1>Book your wash time.</h1>
-            <p>Choose a time slot between 9:00AM and 5:00PM.</p>
-
-            {isStep && <ErrorBanner message={e?.form} />}
+            <p>Choose a time slot between 8:00AM and 7:00PM.</p>
 
             <div className="flex flex-col gap-3 my-5">
                 <fieldset className="space-y-2">
@@ -534,7 +505,6 @@ export function BookTimeSlot() {
                             );
                         })}
                     </div>
-                    {e?.day && <p id="error-day" className="text-xs text-red-600">{e.day}</p>}
                 </fieldset>
 
                 <fieldset className="space-y-2">
@@ -565,7 +535,6 @@ export function BookTimeSlot() {
                             );
                         })}
                     </div>
-                    {e?.time && <p id="error-day" className="text-xs text-red-600">{e.day}</p>}
                 </fieldset>
 
                 <div className="flex items-center justify-end gap-3">

@@ -77,8 +77,17 @@ export default function Candies() {
             </p>
             <br></br>
             <p>
+                Using useSearchParams() imported from remix ensures that you can capture and
+                manipulate the URL query parameters completely server side.
+            </p>
+            <br></br>
+            <ComponentSnippet />
+            <br></br>
+            <p>
                 To illustrate this, heres a list of 100 candies from around the world. Both
-                pagination and filtering happens via url query params.
+                pagination and filtering happens via url query params. The list of candies is
+                a JSON object hard coded to the page, so no database queries, but everything
+                still happens serverside and javascript is not used clientside.
             </p>
 
             <div className="grid gap-4 items-start my-6">
@@ -203,9 +212,29 @@ export default function Candies() {
                 <Link to="/blogs/handling-state-in-remix" preventScrollReset>Back To All State Methods</Link>
                 <Link to="/blogs/handling-state-in-remix/loader/loader-state" preventScrollReset>2. loader{'()'}</Link>
             </div>
-
         </div>
     );
+}
+
+function ComponentSnippet() {
+  return(
+      <pre><code>
+{`export default function Candies() {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const ITEMS_PER_PAGE = 5;
+
+  const pageParam = parseInt(searchParams.get("page") || "1", 10);
+  const page = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
+  const countryParam = searchParams.get("country") || "";
+  const typeParam = searchParams.get("type") || "";
+
+  /* additional code.... */
+
+  return <>content</>;
+};`}    
+      </code></pre>
+  );
 }
 
 export type CandyType =
