@@ -138,8 +138,8 @@ export default function ActionState() {
     return(
         <div className="">
             <p>
-                Actions allow you to perform mutations. After the action runs, the loader is revalidated,
-                and the UI is updated to reflect the updates without having to manage state manually.
+                Actions allow you to perform mutations, and because they cause loader revalidations, those
+                updates can be rendered immediately.
             </p>
             <br></br>
             <p>
@@ -183,8 +183,10 @@ export default function ActionState() {
                 the important thing to note is that the input fields are all uncontrolled. No react and no js to handle it.
             </p>
             <br></br>
+            <BookTimeSlotSnippet />
+            <br></br>
             <p>
-                Heres the action that will capture the POST request and perform the mutation on our database.
+                Here's the action that will capture the POST request and perform the mutation on our database.
             </p>
             <br></br>
             <ActionSnippet />
@@ -605,6 +607,77 @@ export function IsoToHuman(iso: string, {
     if (includeSeconds) opts.second = "2-digit";
 
     return new Intl.DateTimeFormat(locale, opts).format(d);
+}
+
+function BookTimeSlotSnippet() {
+    return(
+        <pre><code>
+{`export function BookTimeSlot() {
+    const days = getDays();
+    const timeSlots = getTimeSlots();
+
+    return(
+        <div className="flex flex-col">
+            <h1>Book your wash time.</div>
+            <p>Choose a time slot between 8AM and 7PM.</p>
+
+            <fieldset>
+                <legend>Day</legend>
+                <div>
+                    {days.map((d) => (
+                        <div key={d.id}>
+                            <input id={d.id}
+                                type="radio"
+                                name="day"
+                                value={d.dateISO}
+                                required
+                                className="peer sr-only"
+                            />
+                            <label
+                                htmlFor={id}
+                                title={d.label}
+                                className="peer-checked:border-black peer-checked:bg-[#2BA2E3]"
+                            >
+                                <span>{d.dayName}</span>
+                                <span>{d.label}</span>
+                            </label>
+                        </div>
+                    ))}
+                </div>
+            </fieldset>
+            <fieldset>
+                <legend>Start time</legend>
+                <div>
+                    {timeSlots.map((t) => (
+                        <div key={t.id}>
+                            <input id={t.id}
+                                type="radio"
+                                name="time"
+                                value={t.value}
+                                required
+                                className="peer sr-only"
+                            />
+                            <label
+                                htmlFor={t.id}
+                                title={t.label}
+                                className="peer-checked:border-black peer-checked:bg-[#2BA2E3]"
+                            >
+                                <span>{t.label}</span>
+                            </label>
+                        </div>
+                    ))}
+                </div>
+            </fieldset>
+
+            <div>
+                <button type="submit" name="_intent" value="BOOK_TIME"
+                >Book Slot</button>
+                </div>
+        </div>
+    );
+};`}    
+        </code></pre>
+    )
 }
 
 function LoaderSnippet() {
