@@ -7,7 +7,7 @@ export default function Index() {
         <div className="flex flex-col gap-2">
             <Link className="w-fit" to="url/url-state" preventScrollReset>1. URL State</Link>
             <Link className="w-fit" to="loader/loader-state" preventScrollReset>2. loader{'()'}</Link>
-            <Link className="w-fit" to="action/url-state" preventScrollReset>3. action{'()'}</Link>
+            <Link className="w-fit" to="action/action-state" preventScrollReset>3. action{'()'}</Link>
             <Link className="w-fit" to="persist/url-state" preventScrollReset>4. Persistent State</Link>
             <Link className="w-fit" to="fetcher/url-state" preventScrollReset>5. useFetcher{'()'}</Link>
             <Link className="w-fit" to="navigate/url-state" preventScrollReset>6. useNavigation{'()'}</Link>

@@ -15,7 +15,11 @@ export default function URLInState() {
                 some complicated state system to give the user that feature.
             </p>
             <br></br>
-            <Link to="/blogs/handling-state-in-remix/url/candies" preventScrollReset>Query Params</Link>
+
+            <div className="flex items-center gap-3 justify-between mt-6">
+                <Link to="/blogs/handling-state-in-remix" preventScrollReset>Back To All State Methods</Link>
+                <Link to="/blogs/handling-state-in-remix/url/candies" preventScrollReset>Query Params</Link>
+            </div>
         </div>
     );
 }

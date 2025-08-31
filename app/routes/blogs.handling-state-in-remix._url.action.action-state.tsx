@@ -127,6 +127,15 @@ export async function action({ request }: ActionFunctionArgs) {
         );
     }
 
+    if (intent === "DELETE_ENTRY") {
+        const delRes = await col.deleteOne({ userId });
+
+        return Response.json(
+            { ok: true, intent, step: 1, doc: null, deletedCount: delRes.deletedCount ?? 0 },
+            { headers: { "Set-Cookie": await commitSession(session) } }
+        );
+    }
+
     return bad({ intent, errors: { form: "Unknown action" } }, 400);
 }
 
@@ -209,27 +218,29 @@ export default function ActionState() {
                 <div style={{ width: `${progress(data.step)}%`, height: "100%", background: data.step < 4 ? "#2BA2E3" : "#16a34a" }} />
             </div>
 
-            {data.step === 4 ? (
-                <BookedAndPaid />
-            ) : (
-                <Form method="POST" className="mt-3 space-y-3">
-                    {data.step === 1 && (
-                        <BookTimeSlot />
-                    )}
+            <Form method="POST" className="mt-3 space-y-3">
+                {data.step === 4 ? (
+                    <BookedAndPaid />
+                ) : (
+                    <>
+                        {data.step === 1 && (
+                            <BookTimeSlot />
+                        )}
 
-                    {data.step === 2 && (
-                        <WashOptions />
-                    )}
+                        {data.step === 2 && (
+                            <WashOptions />
+                        )}
 
-                    {data.step === 3 && (
-                        <ConfirmPayment />
-                    )}
-                </Form>
-            )}
+                        {data.step === 3 && (
+                            <ConfirmPayment />
+                        )}
+                    </>
+                )}
+            </Form>
             
             <div className="flex items-center gap-3 justify-between mt-6">
                 <Link to="/blogs/handling-state-in-remix" preventScrollReset>Back To All State Methods</Link>
-                <Link to="/blogs/handling-state-in-remix/action/action-state" preventScrollReset>3. action{'()'}</Link>
+                <Link to="/blogs/handling-state-in-remix/persistent/persistent-state" preventScrollReset>4. Persistent State</Link>
             </div>
         </div>
     );
@@ -252,7 +263,9 @@ export function BookedAndPaid() {
             <h1>Booked & Paid!</h1>
             <p>We will see you on {wash?.day} at {wash?.time}.</p>
             
-            
+            <div className="flex mt-10 mb-5 items-center justify-center">
+                <button type="submit" name="_intent" value="DELETE_ENTRY" className="rounded border bg-red-700 px-4 py-2 text-white hover:opacity-90">Delete Entry</button>
+            </div>
         </div>
     )
 }
