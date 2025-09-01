@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 
 type SessionData = {
     userId: string;
+    keyValue?: Record<string, unknown>;
 };
 
 type SessionFlashData = {
@@ -33,6 +34,18 @@ export async function getOrCreateSession(request: Request) {
     }
 
     return { session, userId };
+}
+
+export async function getKeyValue(request: Request) {
+    const session = await getSession(request.headers.get("Cookie"));
+    const keyValue = (session.get("keyValue") ?? {}) as Record<string, unknown>;
+
+    return { session, keyValue };
+}
+
+export function setKeyValue(session: Awaited<ReturnType<typeof getSession>>, updates: Record<string, unknown>) {
+    const current = (session.get("keyValue") ?? {}) as Record<string, unknown>;
+    session.set("keyValue", { ...current, ...updates });
 }
 
 export { getSession, commitSession, destroySession };
