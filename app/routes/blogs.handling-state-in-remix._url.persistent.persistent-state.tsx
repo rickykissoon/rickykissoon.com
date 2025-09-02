@@ -149,7 +149,7 @@ export default function PersistentState() {
 
             <div className="flex items-center gap-3 justify-between mt-6">
                 <Link to="/blogs/handling-state-in-remix" preventScrollReset>Back To All State Methods</Link>
-                <Link to="/blogs/handling-state-in-remix/persistent/persistent-state" preventScrollReset>4. Persistent State</Link>
+                <Link to="/blogs/handling-state-in-remix/usefetcher/usefetcher-state" preventScrollReset>4. useFetcher()</Link>
             </div>
         </div>
     );
