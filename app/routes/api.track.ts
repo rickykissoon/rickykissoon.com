@@ -1,11 +1,11 @@
-import { ActionFunctionArgs, data } from "@remix-run/node";
+import { ActionFunctionArgs } from "@remix-run/node";
 import { getOrCreateSession } from "~/sessions";
 import { getDb } from "~/utils/db.server";
 
 
 export async function action({ request }: ActionFunctionArgs) {
     if (request.method !== 'POST') {
-        return data({
+        return Response.json({
             error: "Method Not Allowed"
         }, {
             status: 405
@@ -21,7 +21,7 @@ export async function action({ request }: ActionFunctionArgs) {
         const body = await request.json();
 
         if (!userId || !body.eventType || !body.timestamp) {
-            return data({
+            return Response.json({
                 error: "Missing required fields"
             }, {
                 status: 400
@@ -35,10 +35,10 @@ export async function action({ request }: ActionFunctionArgs) {
             timestamp: new Date(body.timestamp),
         });
 
-        return { success: true };
+        return Response.json({ success: true });
     } catch (error) {
         console.error("Tracking error", error);
-        return data({
+        return Response.json({
             error: "Internal Server Error"
         }, {
             status: 500
