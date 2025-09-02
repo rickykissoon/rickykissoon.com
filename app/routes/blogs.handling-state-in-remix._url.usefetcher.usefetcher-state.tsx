@@ -1,5 +1,5 @@
 import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { useFetcher, useLoaderData } from "@remix-run/react";
+import { Link, useFetcher, useLoaderData } from "@remix-run/react";
 import { commitSession, getKeyValue, setKeyValue } from "~/sessions";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -73,31 +73,37 @@ export default function UseFetcherState() {
         <div>
             <p>
                 useFetcher() is a hook used for interacting with loaders and actions without navigating, causing URL
-                changes or affecting history. It can be used like {'<Form>'}:
+                changes or affecting history. It can be used as a component like {'<Form>'}, or it can be used directly
+                via one of its built in methods.
+            </p>
+            <br></br>
+            <p>
+                The biggest benefits of using useFetcher() is when you want to read/write data without causing URL
+                changes or navigation when working with small interactions that shouldn&apos;t be bookmarkable or shareable, 
+                cause full-page revalidations, or if you need to make multiple isolated requests on one page.
+            </p>
+            <br></br>
+            <p>
+                We will illustrate these benefits in the following example, by use both the component and method forms of
+                useFetcher() to simulate liking and favoriting movies.
             </p>
             <br></br>
             <FetcherFormSnippet />
             <br></br>
-            <p>
-                Or it can be used directly, like when interacting with Loaders:
-            </p>
-            <br></br>
-            <LoaderSnippet />
-            <br></br>
-            <p>
-                The biggest benefits of using useFetcher() is when you want to read/write data without causing URL
-                changes or navigation when working with small interactions that shouldn't be bookmarkable or shareable, 
-                cause full-page revalidations, or if you need to make multiple isolated requests on one page.
-            </p>
 
-            <div className="mt-10">
-                <h1 className="text-[25px] font-bold mb-3 text-center">Movies</h1>
+            <div>
+                <h1 className="text-[25px] font-bold mb-5 text-center">Movies</h1>
 
                 <div className="flex flex-wrap gap-2">
                     {movies.map((m) => (
                         <MovieCard key={m.id} initial={m} />
                     ))}
                 </div>
+            </div>
+
+            <div className="flex items-center gap-3 justify-between mt-6">
+                <Link to="/blogs/handling-state-in-remix" preventScrollReset>Back To All State Methods</Link>
+                <Link to="/blogs/handling-state-in-remix/navigation/navigation-state" preventScrollReset>6. useNavigation{'()'}</Link>
             </div>
         </div>
     );
@@ -130,7 +136,7 @@ function MovieCard({initial}: {initial: Movie}) {
             <div className="bg-gray-950 rounded w-full h-[100px]"></div>
             <div className="flex flex-row justify-between mt-2">
                 <div>
-                    <svg onClick={() => fetcher.submit({intent: "toggleStar", movieId: initial.id}, {method: "post"})} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" style={{ fill: starred && "yellow" }} className="stroke-yellow-400 size-6">
+                    <svg onClick={() => fetcher.submit({intent: "toggleStar", movieId: initial.id}, {method: "post"})} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" style={{ fill: starred && "yellow" }} className="stroke-yellow-400 size-6 cursor-pointer">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
                     </svg>
                 </div>
@@ -147,8 +153,8 @@ function MovieCard({initial}: {initial: Movie}) {
                                 reaction === "like" ? "text-blue-600 focus:ring-blue-500" : "text-gray-600 focus:ring-gray-400"
                               }`}
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" fill={reaction === "like" ? "currentColor" : "none"} viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M6.633 10.25c.806 0 1.533-.446 2.031-1.08a9.041 9.041 0 0 1 2.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 0 0 .322-1.672V2.75a.75.75 0 0 1 .75-.75 2.25 2.25 0 0 1 2.25 2.25c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282m0 0h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 0 1-2.649 7.521c-.388.482-.987.729-1.605.729H13.48c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 0 0-1.423-.23H5.904m10.598-9.75H14.25M5.904 18.5c.083.205.173.405.27.602.197.4-.078.898-.523.898h-.908c-.889 0-1.713-.518-1.972-1.368a12 12 0 0 1-.521-3.507c0-1.553.295-3.036.831-4.398C3.387 9.953 4.167 9.5 5 9.5h1.053c.472 0 .745.556.5.96a8.958 8.958 0 0 0-1.302 4.665c0 1.194.232 2.333.654 3.375Z" />
+                            <svg xmlns="http://www.w3.org/2000/svg" fill={reaction === "like" ? "currentColor" : "#4b5563"} viewBox="0 0 24 24" className="size-6 my-auto">
+                                <path d="M7.493 18.5c-.425 0-.82-.236-.975-.632A7.48 7.48 0 0 1 6 15.125c0-1.75.599-3.358 1.602-4.634.151-.192.373-.309.6-.397.473-.183.89-.514 1.212-.924a9.042 9.042 0 0 1 2.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 0 0 .322-1.672V2.75A.75.75 0 0 1 15 2a2.25 2.25 0 0 1 2.25 2.25c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 0 1-2.649 7.521c-.388.482-.987.729-1.605.729H14.23c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 0 0-1.423-.23h-.777ZM2.331 10.727a11.969 11.969 0 0 0-.831 4.398 12 12 0 0 0 .52 3.507C2.28 19.482 3.105 20 3.994 20H4.9c.445 0 .72-.498.523-.898a8.963 8.963 0 0 1-.924-3.977c0-1.708.476-3.305 1.302-4.666.245-.403-.028-.959-.5-.959H4.25c-.832 0-1.612.453-1.918 1.227Z" />
                             </svg>
                         </button>
                     </fetcher.Form>
@@ -165,73 +171,42 @@ function MovieCard({initial}: {initial: Movie}) {
 function FetcherFormSnippet() {
     return(
         <pre><code>
-{`function PageComponent() {
+{`function MovieCard({initial}: {initial: Movie}) {
     const fetcher = useFetcher();
-    const isSubmitting = fetcher.state === "submitting";
+    const current = fetcher.data?.movie ?? initial;
+    const pendingIntent = fetcher.state === "submitting" ? String(fetcher.formData?.get("intent")) : null;
 
-    return(
-        <fetcher.Form method="post" action="/user-profile">
-            <h1>Profile</h1>
+    let likes = current.likes;
+    let reaction = current.reaction;
+    let starred = current.starred;
 
-            <div>
-                <label>
-                    Full name
-                    <input type="text" name="name" required />
-                </label>
-
-                <label>
-                    Date of birth
-                    <input type="date" name="dob" required />
-                </label>
-
-                <label>
-                    Country
-                    <select name="country" required defaultValue="">
-                        <option value="" disabled>Choose...</option>
-                        <option value="US">United States</option>
-                        <option value="CA">Canada</option>
-                        <option value="GB">United Kingdom</option>
-                        <option value="AU">Australia</option>
-                        <option value="JP">Japan</option>
-                    </select>
-                </label>
-
-                <button type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? "Saving..." : "Save"}
-                </button>
-            </div>
-        </fetcher.Form>
-    );
-}`}    
-        </code></pre>
-    );
-}
-
-function LoaderSnippet() {
-    return(
-        <pre><code>
-{`export default function Dashboard() {
-    const salesFetcher = useFetcher();
-
-    const isLoading = salesFetcher.state === "loading";
-    const sales = salesFetcher.data;
+    if (pendingIntent === "toggleStar") {
+        starred = !current.starred;
+    } else if (pendingIntent === "toggleLike") {
+        if (reaction === "like") {
+            likes -= 1;
+            reaction = null;
+        } else {
+            likes += 1;
+            reaction = "like";    
+        }
+    }
 
     return(
         <div>
-            <h1>Sales Widget</h1>
-
+            <Image />
+            <Star onClick={() => fetcher.submit({intent: "toggleStar", movieId: initial.id}, {method: "post"})} isStarred={starred} />
             <div>
-                <button onClick={() => salesFetcher.load("/api/sales?range=7d")} disabled={isLoading}>
-                    {isLoading ? "Loading..." : "Last 7 days"}
-                </button>
-                <button onClick={() => salesFetcher.load("/api/sales?range=30d")} disabled={isLoading}>
-                    {isLoading ? "Loading..." : "Last 30 days"}
-                </button>
-            </div>
+                <LikeCount count={likes} />
+                <fetcher.Form method="post">
+                    <input type="hidden" name="intent" value="toggleLike" />
+                    <input type="hidden" name="movieId" value={initial.id} />
 
-            {sales && sales.map((sale, index) => (
-                <SaleComponent key={index} data={sale} />
-            ))}
+                    <button type="button" title={reaction === "like" ? "Unlike" : "Like"}>
+                        <ThumbsUp isLiked={reaction === "like"} />
+                    </button>
+                </fetcher.Form>
+            </div>
         </div>
     );
 }`}    
