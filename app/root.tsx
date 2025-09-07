@@ -8,8 +8,8 @@ import {
   ScrollRestoration,
   useLocation,
   useRouteError,
-} from "@remix-run/react";
-import type { LinksFunction, LoaderFunction } from "@remix-run/node";
+} from "react-router";
+import type { LinksFunction, LoaderFunction } from "react-router";
 import { createHash } from "crypto";
 
 import "./tailwind.css";

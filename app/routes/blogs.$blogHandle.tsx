@@ -1,10 +1,11 @@
-import { LoaderFunction, MetaFunction, redirect } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { redirect } from "react-router";
+import { useLoaderData } from "react-router";
 import { getDb } from "~/utils/db.server";
 import { useEffect } from "react";
 import "highlight.js/styles/github-dark.css";
+import type { Route } from "./+types/blogs.$blogHandle";
 
-export const loader: LoaderFunction = async ({ params }) => {
+export async function loader({ params }: Route.LoaderArgs) {
     const db = await getDb();
     const collection = db.collection("blogs");
     const { blogHandle } = params;
@@ -36,15 +37,17 @@ export const loader: LoaderFunction = async ({ params }) => {
 
     const count = uniqueUserCount.length > 0 ? uniqueUserCount[0].uniqueUsers : 0;
 
-    return {
-        ...blogPost,
+    const result: LoaderData = {
+        ...(blogPost as any),
         _id: blogPost._id.toString(),
         createdAt: blogPost.createdAt.toISOString(),
         viewCount: count
     };
+
+    return result;
 }
 
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
+export function meta({ data }: Route.MetaArgs) {
     if (!data) {
         return [
             { title: "Blog Not Found" },
@@ -70,7 +73,10 @@ interface BlogPost {
     tags: string[];
     createdAt: string;
     viewCount: number;
+    excerpt?: string;
 }
+
+type LoaderData = BlogPost;
 
 export default function Blog() {
     const blogPost = useLoaderData<BlogPost>();

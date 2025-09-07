@@ -1,4 +1,4 @@
-import { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
+import { LinksFunction, LoaderFunctionArgs } from "react-router";
 import { listBlogs } from "~/utils/blog.server";
 
 export const links: LinksFunction = () => {

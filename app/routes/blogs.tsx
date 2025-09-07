@@ -1,5 +1,5 @@
-import { LoaderFunction } from "@remix-run/node";
-import { Link, Outlet, useLoaderData, useLocation } from "@remix-run/react";
+import { LoaderFunction } from "react-router";
+import { Link, Outlet, useLoaderData, useLocation } from "react-router";
 import { BlogSnippet, listBlogs } from "~/utils/blog.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
