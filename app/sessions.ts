@@ -1,4 +1,4 @@
-import { createCookieSessionStorage } from "@remix-run/node";
+import { createCookieSessionStorage } from "react-router";
 import { v4 as uuidv4 } from "uuid";
 
 type SessionData = {

@@ -1,4 +1,4 @@
-import { createCookie } from "@remix-run/node";
+import { createCookie } from "react-router";
 import { createHash } from "crypto";
 
 export const lastSeenCookie = createCookie("reader_last_seen", {

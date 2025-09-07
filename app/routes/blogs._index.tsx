@@ -1,5 +1,5 @@
-import { LoaderFunction } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
+import { LoaderFunction } from "react-router";
+import { Link, useLoaderData } from "react-router";
 import { Post } from "~/components/Post";
 import { BlogSnippet, listBlogs } from "~/utils/blog.server";
 import { getDb } from "~/utils/db.server";

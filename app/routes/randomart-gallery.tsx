@@ -1,5 +1,5 @@
-import { LoaderFunction } from "@remix-run/node";
-import { Link, useLoaderData, useSearchParams } from "@remix-run/react";
+import { LoaderFunction } from "react-router";
+import { Link, useLoaderData, useSearchParams } from "react-router";
 import { createHash } from "crypto";
 import { ObjectId } from "mongodb";
 import { useMemo, useState } from "react";
