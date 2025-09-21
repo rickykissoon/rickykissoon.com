@@ -46,7 +46,7 @@ export default function BlogsTemplate() {
                     ]} />
                 )} */}
             </div>
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 max-w-[1200px]">
                 <Outlet />
             </div>
         </article>
