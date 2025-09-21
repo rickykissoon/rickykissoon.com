@@ -96,8 +96,8 @@ export default function ServerState() {
             <Outlet />
 
             <div className="flex items-center gap-3 justify-between mt-6">
-                <Link to="/blogs/web-state-with-react-router-7" preventScrollReset>Home</Link>
-                <Link to="/blogs/web-state-with-react-router-7/server-state-usefetcher" preventScrollReset>2b.Server as State (useFetcher())</Link>
+                <Link to="/blogs/web-state-with-react-router-7">Home</Link>
+                <Link to="/blogs/web-state-with-react-router-7/server-state-usefetcher">2b.Server as State (useFetcher())</Link>
             </div>
         </div>
     )

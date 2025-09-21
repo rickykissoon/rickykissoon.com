@@ -103,8 +103,8 @@ export default function ServerStateUseFetcher() {
             </p>
 
             <div className="flex items-center gap-3 justify-between mt-6">
-                <Link to="/blogs/web-state-with-react-router-7" preventScrollReset>Home</Link>
-                <Link to="/blogs/web-state-with-react-router-7/persistence-state" preventScrollReset>3. Persistence as State</Link>
+                <Link to="/blogs/web-state-with-react-router-7">Home</Link>
+                <Link to="/blogs/web-state-with-react-router-7/persistence-state">3. Persistence as State</Link>
             </div>
         </div>
     );
