@@ -1,5 +1,5 @@
 import { ActionFunctionArgs } from "react-router";
-import { getOrCreateSession } from "~/sessions";
+import { getOrCreateSession } from "~/sessions.server";
 import { getDb } from "~/utils/db.server";
 
 

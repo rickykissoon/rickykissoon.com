@@ -13,7 +13,7 @@ import type { LinksFunction, LoaderFunction } from "react-router";
 import { createHash } from "crypto";
 
 import "./tailwind.css";
-import { commitSession, getOrCreateSession } from "./sessions";
+import { commitSession, getOrCreateSession } from "./sessions.server";
 import { useTracking } from "./hooks/useTracking";
 import Menu from "./components/Menu";
 import { Post } from "./components/Post";
@@ -88,8 +88,6 @@ export default function App() {
 }
 
 export function ErrorBoundary() {
-  const location = useLocation();
-  useTracking(location.pathname);
   const error = useRouteError();
   const quotes = [
     {
@@ -114,7 +112,7 @@ export function ErrorBoundary() {
     },
     {
       text: "In the fields of observation, chance favors only the prepared mind.",
-      author: "Lous Pasteur"
+      author: "Louis Pasteur"
     },
     {
       text: "Not all those who wander are lost.",
@@ -129,14 +127,6 @@ export function ErrorBoundary() {
   const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
 
   return(
-    <html lang="en">
-      <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <Meta />
-        <Links />
-      </head>
-      <body>
         <div className="flex w-full">
 			    <div className="m-3 lg:mx-10 w-full">
             <div className="mt-7 max-w-[700px]">
@@ -170,10 +160,5 @@ export function ErrorBoundary() {
             </div>
           </div>
         </div>
-        <Menu pathname={location.pathname} />
-        <ScrollRestoration />
-        <Scripts />
-      </body>
-    </html>
   );
 }

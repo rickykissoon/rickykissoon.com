@@ -5,7 +5,7 @@ import { ObjectId } from "mongodb";
 import { useMemo, useState } from "react";
 import { AnimatedRandomart } from "~/components/AnimatedRandomart";
 import { Post } from "~/components/Post";
-import { getOrCreateSession } from "~/sessions";
+import { getOrCreateSession } from "~/sessions.server";
 import { getDb } from "~/utils/db.server";
 
 export const loader: LoaderFunction = async ({ request }) => {

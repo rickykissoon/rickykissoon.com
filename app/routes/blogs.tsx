@@ -1,5 +1,7 @@
-import { LoaderFunction } from "react-router";
+import { isRouteErrorResponse, Links, LoaderFunction, Meta, Scripts, ScrollRestoration, useRouteError } from "react-router";
 import { Link, Outlet, useLoaderData, useLocation } from "react-router";
+import Menu from "~/components/Menu";
+import { Post } from "~/components/Post";
 import { BlogSnippet, listBlogs } from "~/utils/blog.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
