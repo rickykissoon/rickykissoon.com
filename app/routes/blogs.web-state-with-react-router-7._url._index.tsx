@@ -27,7 +27,7 @@ export default function Index() {
             </p>
             <br></br>
 
-            <table className="w-full text-[12px]">
+            <table className="w-full text-[12px] max-w-[800px]">
                 <tbody>
                     <tr>
                         <td className="pl-2 border">URL as State</td>
@@ -45,9 +45,9 @@ export default function Index() {
             </table>
             <br></br>
             <div className="flex flex-col mt-5 gap-2">
-                <Link className="w-fit" to="url-state" preventScrollReset>1. URL as State (params + query)</Link>
-                <Link className="w-fit" to="server-state" preventScrollReset>2. Server as State (loaders + actions)</Link>
-                <Link className="w-fit" to="persistence-state" preventScrollReset>3. Persistence as State (cookies + sessions)</Link>
+                <Link className="w-fit" to="url-state">1. URL as State (params + query)</Link>
+                <Link className="w-fit" to="server-state">2. Server as State (loaders + actions)</Link>
+                <Link className="w-fit" to="persistence-state">3. Persistence as State (cookies + sessions)</Link>
             </div>
         </>
     );

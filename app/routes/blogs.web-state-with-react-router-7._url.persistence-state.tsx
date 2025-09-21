@@ -155,7 +155,7 @@ export default function PersistenceState() {
             <br></br>
 
             <div className="flex items-center gap-3 mt-6">
-                <Link to="/blogs/web-state-with-react-router-7" preventScrollReset>Home</Link>
+                <Link to="/blogs/web-state-with-react-router-7">Home</Link>
             </div>
         </div>
     );

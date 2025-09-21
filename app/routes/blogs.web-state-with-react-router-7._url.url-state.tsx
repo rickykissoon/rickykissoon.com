@@ -218,8 +218,8 @@ export default function URLState() {
             </div>
 
             <div className="flex items-center gap-3 justify-between mt-6">
-                <Link to="/blogs/web-state-with-react-router-7" preventScrollReset>Home</Link>
-                <Link to="/blogs/web-state-with-react-router-7/server-state" preventScrollReset>2. Server as State</Link>
+                <Link to="/blogs/web-state-with-react-router-7">Home</Link>
+                <Link to="/blogs/web-state-with-react-router-7/server-state">2. Server as State</Link>
             </div>
         </div>
     );
