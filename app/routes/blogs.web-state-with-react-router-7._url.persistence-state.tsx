@@ -173,7 +173,19 @@ function CreateCookieSnippet() {
         sameSite: "lax",
         path: "/",
     },
-});`}    
+});
+
+export async function getKeyValue(request: Request) {
+    const session = await getSession(request.headers.get("Cookie"));
+    const keyValue = (session.get("keyValue") ?? {}) as Record<string, unknown>;
+
+    return { session, keyValue };
+}
+
+export function setKeyValue(session: Awaited<ReturnType<typeof getSession>>, updates: Record<string, unknown>) {
+    const current = (session.get("keyValue") ?? {}) as Record<string, unknown>;
+    session.set("keyValue", { ...current, ...updates });
+}`}
         </code></pre>
     );
 }
