@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 
 type SessionData = {
     userId: string;
+    isAdmin?: boolean;
     keyValue?: Record<string, unknown>;
 };
 

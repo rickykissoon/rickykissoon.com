@@ -3,12 +3,26 @@ import { useActionData } from "react-router";
 import { getDb } from "~/utils/db.server";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { ClientOnly } from "~/utils/ClientOnly";
+import { commitSession, getSession } from "~/sessions.server";
 
 const ADMIN_SECRET = process.env.ADMIN_SECRET;
+const ADMIN_SESSION_KEY = "isAdmin";
 
 const DraftEditorClient = lazy(() => import("~/utils/DraftEditor.client"));
 
 export const loader: LoaderFunction = async ({ request }) => {
+    const session = await getSession(request.headers.get("Cookie"));
+    const isAdmin = session.get(ADMIN_SESSION_KEY) === true;
+
+    if (isAdmin) {
+        return data(null);
+    }
+
+    if (!ADMIN_SECRET) {
+        console.error("ADMIN_SECRET is not defined");
+        return redirect("/");
+    }
+
     const url = new URL(request.url);
     const secretKey = url.searchParams.get("key");
 
@@ -16,14 +30,28 @@ export const loader: LoaderFunction = async ({ request }) => {
         return redirect("/");
     }
 
-    return null;
+    session.set(ADMIN_SESSION_KEY, true);
+    return data(null, {
+        headers: {
+            "Set-Cookie": await commitSession(session),
+        },
+    });
 }
 
 export const action: ActionFunction = async ({ request }) => {
+    const session = await getSession(request.headers.get("Cookie"));
+    const isAdmin = session.get(ADMIN_SESSION_KEY) === true;
+    if (!isAdmin) {
+        return data(
+            { error: "Unauthorized" },
+            { status: 403 }
+        );
+    }
+
     const formData = await request.formData();
-    const title = formData.get("title") as string;
-    const content = formData.get("content") as string;
-    const tagStr = formData.get("tags") as string;
+    const title = String(formData.get("title") ?? "").trim();
+    const content = String(formData.get("content") ?? "").trim();
+    const tagStr = String(formData.get("tags") ?? "");
 
     if (!title || !content) {
         return data({

@@ -1,6 +1,5 @@
 import { LoaderFunction } from "react-router";
 import { Link, useLoaderData, useSearchParams } from "react-router";
-import { createHash } from "crypto";
 import { ObjectId } from "mongodb";
 import { useMemo, useState } from "react";
 import { AnimatedRandomart } from "~/components/AnimatedRandomart";
@@ -77,6 +76,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 }
 
 async function hashUserId(userId: string): Promise<string> {
+    const { createHash } = await import("node:crypto");
     return createHash("sha256").update(userId).digest("hex");
 }
 

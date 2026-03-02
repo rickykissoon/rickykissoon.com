@@ -10,7 +10,6 @@ import {
   useRouteError,
 } from "react-router";
 import type { LinksFunction, LoaderFunction } from "react-router";
-import { createHash } from "crypto";
 
 import "./tailwind.css";
 import { commitSession, getOrCreateSession } from "./sessions.server";
@@ -40,6 +39,7 @@ export const links: LinksFunction = () => [
 
 export const loader: LoaderFunction = async ({ request }) => {
   const { session, userId } = await getOrCreateSession(request);
+  const { createHash } = await import("node:crypto");
   const hashedId = createHash("sha256").update(userId).digest("hex");
 
   return data(
