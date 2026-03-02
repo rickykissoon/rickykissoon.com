@@ -8,6 +8,10 @@ import { HydratedRouter } from "react-router/dom";
 import { startTransition, StrictMode } from "react";
 import { hydrateRoot } from "react-dom/client";
 
+if (typeof globalThis.global === "undefined") {
+  globalThis.global = globalThis;
+}
+
 startTransition(() => {
   hydrateRoot(
     document,
