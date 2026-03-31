@@ -29,7 +29,7 @@ export default function ServerState() {
                             </p>
                             <br></br>
                             <p>
-                                Submitting a {'<Form>'} triggers the the target route's action, once the action finishes, React Router
+                                Submitting a {'<Form>'} triggers the target route's action, once the action finishes, React Router
                                 performs the client side navigation and loader revalidation. If the {'<Form>'} points to the same route
                                 the navigation stays on the current page, but if the form points to a different route, React Router will
                                 navigate there.
